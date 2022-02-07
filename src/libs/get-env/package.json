@@ -1,0 +1,17 @@
+{
+  "name": "get-env",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws": "file:../aws-sdk"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.8"
+  }
+}

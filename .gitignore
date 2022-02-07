@@ -1,0 +1,26 @@
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# lock file
+*.lock*
+infrastructures/environments/**/main.tf
+infrastructures/environments/**/output.tf
+infrastructures/environments/**/serverless.auto.tfvars
+
+# build file
+**/deploy/*
+**/builds/*
+
+**/base_infra_output*
+
+# node mddule
+**/node_modules/*
+
+# vscode config file
+.vscode
+
+**/dist/*

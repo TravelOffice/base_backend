@@ -1,0 +1,10 @@
+version: 0.2
+phases:
+
+  build:
+    commands:
+      - aws s3 sync s3://$CODEPIPELINE_BUCKET/output-vars/$BUILD_ENV infrastructures/environments/$BUILD_ENV
+
+artifacts:
+  files:
+    - '**/*'

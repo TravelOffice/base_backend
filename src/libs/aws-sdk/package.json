@@ -1,0 +1,16 @@
+{
+  "name": "aws-sdk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^17.0.10",
+    "aws-sdk": "^2.1061.0"
+  }
+}
