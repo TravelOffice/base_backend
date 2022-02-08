@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     encrypt = true
-    key     = "marketing/backend/environments/dev/terraform.tfstate"
+    key     = "base/backend/environments/dev/terraform.tfstate"
     region  = "ap-southeast-1"
   }
 }

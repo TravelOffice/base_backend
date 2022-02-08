@@ -63,3 +63,11 @@ module "LAMBDA_CRON" {
   ENV          = var.ENV
   TAGS         = local.tags
 }
+
+
+module "ECS" {
+  source       = "../../modules/application/ecs"
+  FEATURE_NAME = var.FEATURE_NAME
+  ENV          = var.ENV
+  TAGS         = local.tags
+}
