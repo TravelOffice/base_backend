@@ -1,5 +1,7 @@
 import * as AWS from 'aws';
-
+import dotenv from 'dotenv';
+console.log(process.cwd());
+const config = dotenv.config({ path: process.cwd() + '/.env.development' });
 const client = new AWS.SecretsManager({});
 
 export function isAwsEnv() {
@@ -15,14 +17,18 @@ export function isDevEnv() {
 }
 
 export async function getAwsSecretValue(key: string) : Promise<string | undefined> {
-  const data = await client.getSecretValue({SecretId: key}).promise();
-  return data.SecretString;
-}
-
-export async function getEnv(key: string) : Promise<string | undefined> {
   if (isAwsEnv()) {
-    return getAwsSecretValue(key);
+    const secretId = process.env.SECRET_MANAGER_ID || '';
+    if(!secretId) {
+      const data = await client.getSecretValue({SecretId: secretId}).promise();
+      const dataJson = JSON.parse(data.SecretString || {}.toString());
+      return dataJson[key];
+    }  
   } else {
     return process.env[key];
   }
+}
+
+export function getEnv(key: string) : string | undefined {
+  return process.env[key];
 }
