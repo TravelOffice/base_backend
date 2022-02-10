@@ -1,5 +1,9 @@
 variable "TASK_ROLE_ARN" {}
 variable "TASK_NAME" {}
+variable "IMAGE_URI" {}
+variable "FUNCTION_HANDLER" {
+  default = "app.handler"
+}
 variable "TAGS" {}
 
 
@@ -14,7 +18,7 @@ resource "aws_ecs_task_definition" "task" {
   container_definitions = jsonencode([
     {
       name                   = var.TASK_NAME
-      image                  = "hello-world"
+      image                  = var.IMAGE_URI
       essential              = true
       readonlyRootFilesystem = false
       "linuxParameters" = {
@@ -24,6 +28,12 @@ resource "aws_ecs_task_definition" "task" {
         {
           containerPort = 80
           hostPort      = 80
+        }
+      ]
+      environment = [
+        {
+          name = "FUNCTION_HANDLER"
+          value = var.FUNCTION_HANDLER
         }
       ]
       "logConfiguration" : {
