@@ -2,7 +2,7 @@ import cors from 'cors';
 import express, { Request, Response } from 'express';
 import { getEnv } from 'get-env';
 import compression from 'compression';
-import AWS from 'aws-sdk';
+import * as AWS from 'aws';
 
 const app = express();
 
@@ -12,13 +12,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.post('/ecs/tasks', async (req: Request, res: Response) => {
-  const env = await getEnv('NODE_ENV');
-  const cluster = await getEnv('CLUSTER');
-  const launchType = await getEnv('FARGATE');
-  const subnet = await getEnv('SUBNET');
-  const taskDefinition = await getEnv('taskDefinition');
+  // const env = await getEnv('NODE_ENV');
+  const cluster = await getEnv('ECS_CLUSTER_NAME');
+  const launchType = await getEnv('ECS_LAUNCH_TYPE');
+  const subnet = await getEnv('ECS_SUBNET') || '';
+  const taskDefinition = await getEnv('ECS_TASK_DEFINITION') || '';
   const ecs = new AWS.ECS();
-  const params = {
+  const params : AWS.ECS.Types.RunTaskRequest = {
       cluster: cluster, 
       taskDefinition: taskDefinition,
       launchType:launchType,

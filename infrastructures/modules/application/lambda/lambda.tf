@@ -72,9 +72,7 @@ resource "aws_lambda_function" "lambda" {
     for layer in each.value.layers : var.LAMBDA_LAYER_ARNS[layer]
   ]
   environment {
-    variables = {
-      Env = var.ENV
-    }
+    variables = try(each.value.env_vars, null)
   }
 
   tags = var.TAGS
