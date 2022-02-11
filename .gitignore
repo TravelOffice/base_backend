@@ -22,5 +22,6 @@ infrastructures/environments/**/serverless.auto.tfvars
 
 # vscode config file
 .vscode
+.idea
 
 **/dist/*
