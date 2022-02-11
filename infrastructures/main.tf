@@ -10,6 +10,7 @@ variable "EXECUTE_ECS_TASK_LAMBDA_ROLE" {}
 variable "PROVISION_TENANT_INFA_ECS_TASK_ROLE" {}
 variable "LAMBDA_TRIGGERS" {}
 variable "LAMBDA_CRONS" {}
+variable "BASE_BACKEND_SECRET_MANAGER_ID" {}
 locals {
   iam_roles = {
     standard_lambda_role                 = var.STANDARD_LAMBDA_IAM_ROLE
@@ -18,12 +19,16 @@ locals {
   }
   env_vars = {
     ecs_task_vars = {
-      ENV                      = var.ENV
+      NODE_ENV                 = var.ENV
       ECS_CLUSTER_NAME         = module.ECS.name
       ECS_LAUNCH_TYPE          = "FARGATE"
       ECS_SUBNET               = var.BASE_BACKEND_PUBLIC_SUBNETS[0]
       ECS_TASK_DEFINITION_ARN  = module.ECS.task_definition_arn
       ECS_TASK_DEFINITION_NAME = module.ECS.task_definition_name
+    }
+    standard_vars = {
+      NODE_ENV          = var.ENV
+      SECRET_MANAGER_ID = var.BASE_BACKEND_SECRET_MANAGER_ID
     }
   }
 

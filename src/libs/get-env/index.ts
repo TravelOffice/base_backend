@@ -1,7 +1,6 @@
 import * as AWS from 'aws';
 import dotenv from 'dotenv';
-console.log(process.cwd());
-const config = dotenv.config({ path: process.cwd() + '/.env.development' });
+dotenv.config({ path: process.cwd() + '/.env.development' });
 const client = new AWS.SecretsManager({});
 
 export function isAwsEnv() {

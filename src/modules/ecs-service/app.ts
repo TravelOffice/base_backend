@@ -12,7 +12,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.post('/ecs/tasks', async (req: Request, res: Response) => {
-  const env = await getEnv('ENV');
+  console.log(req);
+  const env = await getEnv('NODE_ENV');
   const cluster = await getEnv('ECS_CLUSTER_NAME');
   const launchType = await getEnv('ECS_LAUNCH_TYPE');
   const subnet = await getEnv('ECS_SUBNET') || '';
