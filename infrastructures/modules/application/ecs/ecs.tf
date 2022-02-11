@@ -21,16 +21,16 @@ module "ECS_TASK_ROLE" {
 }
 
 resource "aws_ecr_repository" "repo" {
-  name                 = "tenant_provision"
+  name = "tenant_provision"
 }
 
 module "ECS_DOCKER_IMAGE" {
   source  = "terraform-aws-modules/lambda/aws//modules/docker-build"
   version = "2.34.0"
 
-  ecr_repo      = "tenant_provision"
-  ecr_repo_tags = var.TAGS
-  source_path   = format("%s/%s", "../../..", "src/modules/tenant_provision")
+  ecr_repo                  = "tenant_provision"
+  ecr_repo_tags             = var.TAGS
+  source_path               = format("%s/%s", "../../..", "src/modules/tenant_provision")
   ecr_repo_lifecycle_policy = <<EOF
 {
   "rules": [
@@ -55,6 +55,6 @@ module "ECS_TASK_DEFINITION" {
   source        = "./task_definition"
   TASK_NAME     = "${var.ENV}-${var.FEATURE_NAME}"
   TASK_ROLE_ARN = module.ECS_TASK_ROLE.task_role_arn
-  IMAGE_URI = module.ECS_DOCKER_IMAGE.image_uri
+  IMAGE_URI     = module.ECS_DOCKER_IMAGE.image_uri
   TAGS          = var.TAGS
 }
