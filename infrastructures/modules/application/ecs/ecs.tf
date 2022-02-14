@@ -1,5 +1,6 @@
 variable "ENV" {}
 variable "FEATURE_NAME" {}
+variable "ECS_TASK_ROLE" {}
 variable "TAGS" {}
 
 module "ECS_CLUSTER" {
@@ -12,12 +13,6 @@ module "ECS_CLUSTER" {
   capacity_providers = ["FARGATE", "FARGATE_SPOT"]
 
   tags = var.TAGS
-}
-
-module "ECS_TASK_ROLE" {
-  source    = "./task_role"
-  ROLE_NAME = "${var.ENV}-${var.FEATURE_NAME}"
-  TAGS      = var.TAGS
 }
 
 resource "aws_ecr_repository" "repo" {
@@ -54,7 +49,7 @@ EOF
 module "ECS_TASK_DEFINITION" {
   source        = "./task_definition"
   TASK_NAME     = "${var.ENV}-${var.FEATURE_NAME}"
-  TASK_ROLE_ARN = module.ECS_TASK_ROLE.task_role_arn
+  TASK_ROLE_ARN = var.ECS_TASK_ROLE
   IMAGE_URI     = module.ECS_DOCKER_IMAGE.image_uri
   TAGS          = var.TAGS
 }
