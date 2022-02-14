@@ -16,6 +16,14 @@ locals {
     execute_ecs_task_lambda_role         = var.EXECUTE_ECS_TASK_LAMBDA_ROLE
     provision_tenant_infra_ecs_task_role = var.PROVISION_TENANT_INFA_ECS_TASK_ROLE
   }
+  env_vars = {
+    ecs_task_vars = {
+      ECS_CLUSTER_NAME    = module.ECS.name
+      ECS_LAUNCH_TYPE     = "FARGATE"
+      ECS_SUBNET          = var.BASE_BACKEND_PUBLIC_SUBNETS[0]
+      ECS_TASK_DEFINITION = module.ECS.task_definition
+    }
+  }
 
   tags = {
     Env       = var.ENV
@@ -41,8 +49,8 @@ module "LAMBDA_FUNCTION" {
   ENV               = var.ENV
   FEATURE_NAME      = var.FEATURE_NAME
   IAM_ROLES         = local.iam_roles
+  ENV_VARS          = local.env_vars
   TAGS              = local.tags
-
 }
 
 module "API_GATEWAY" {

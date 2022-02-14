@@ -53,3 +53,11 @@ module "ECS_TASK_DEFINITION" {
   IMAGE_URI     = module.ECS_DOCKER_IMAGE.image_uri
   TAGS          = var.TAGS
 }
+
+output "name" {
+  value = module.ECS_CLUSTER.ecs_cluster_name
+}
+
+output "task_definition" {
+  value = module.ECS_TASK_DEFINITION.task_arn
+}
