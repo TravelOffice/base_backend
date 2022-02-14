@@ -26,6 +26,7 @@ phases:
 artifacts:
   files:
     - '**/*'
+  enable-symlinks: yes
 
 cache:
   paths:

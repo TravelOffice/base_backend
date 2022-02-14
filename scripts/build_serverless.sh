@@ -36,13 +36,20 @@ build_service() {
   rm -rf ${SERVICE_DIR}/node_modules
   npm install
   npm run build
+
   rm -rf ${SERVICE_DIR}/node_modules
+  echo "Install production dependencies"
   npm install --production
+  echo "Finished installing production"
   LAYER_DIR=${CUR_DIR}/src/layers/${SERVICENAME}/nodejs
   mkdir -p ${LAYER_DIR}
   cd ${LAYER_DIR}
   rm -rf *
+  echo "Prepare link ${LAYER_DIR}"
+  # ls ../../../modules/${SERVICENAME}/node_modules
   ln -sf ../../../modules/${SERVICENAME}/node_modules .
+  echo "Link layer successfully"
+  # ls ${LAYER_DIR}/node_modules
   cd $CUR_DIR
 }
 

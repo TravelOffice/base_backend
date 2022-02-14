@@ -29,6 +29,28 @@ app.post('/ecs/tasks', async (req: Request, res: Response) => {
             subnets: [subnet],
             assignPublicIp: 'DISABLED'
           }
+      },
+      overrides: {
+        containerOverrides: [{
+          environment: [
+            {
+              name: 'TENANT_NAME',
+              value: 'hello'
+            },
+            {
+              name: 'TENANT_DOMAIN_RECORD_VALUE',
+              value: 'amplify'
+            },
+            {
+              name: 'TF_BUCKET',
+              value: ''
+            },
+            {
+              name: 'TF_BUCKET_KEY',
+              value: 'base/backend/tenant_provision/dev/hello/terraform.tfstate'
+            }
+          ]
+        }]
       }
     };
     await ecs.runTask(params).promise();

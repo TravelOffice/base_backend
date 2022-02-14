@@ -23,7 +23,7 @@ module "ECS_DOCKER_IMAGE" {
   source  = "terraform-aws-modules/lambda/aws//modules/docker-build"
   version = "2.34.0"
 
-  ecr_repo                  = "tenant_provision"
+  ecr_repo                  = split("/", aws_ecr_repository.repo.repository_url)[1]
   ecr_repo_tags             = var.TAGS
   source_path               = format("%s/%s", "../../..", "src/modules/tenant_provision")
   ecr_repo_lifecycle_policy = <<EOF
