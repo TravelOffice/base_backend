@@ -1,16 +1,20 @@
-variable "MARKETING_PRIVATE_SUBNETS" {}
+variable "BASE_BACKEND_PUBLIC_SUBNETS" {}
 
-variable "MARKETING_VPC_ID" {}
+variable "BASE_BACKEND_VPC_ID" {}
 variable "LAMBDA_LAYERS" {}
 variable "LAMBDA_FUNCTIONS" {}
 variable "API_ENDPOINTS" {}
 variable "AWS_REGION" {}
 variable "STANDARD_LAMBDA_IAM_ROLE" {}
+variable "EXECUTE_ECS_TASK_LAMBDA_ROLE" {}
+variable "PROVISION_TENANT_INFA_ECS_TASK_ROLE" {}
 variable "LAMBDA_TRIGGERS" {}
 variable "LAMBDA_CRONS" {}
 locals {
   iam_roles = {
-    standard_lambda_role = var.STANDARD_LAMBDA_IAM_ROLE
+    standard_lambda_role                 = var.STANDARD_LAMBDA_IAM_ROLE
+    execute_ecs_task_lambda_role         = var.EXECUTE_ECS_TASK_LAMBDA_ROLE
+    provision_tenant_infra_ecs_task_role = var.PROVISION_TENANT_INFA_ECS_TASK_ROLE
   }
 
   tags = {
@@ -29,15 +33,15 @@ module "LAMBDA_LAYER" {
 }
 
 module "LAMBDA_FUNCTION" {
-  source                    = "../../modules/application/lambda"
-  LAMBDA_FUNCTIONS          = var.LAMBDA_FUNCTIONS
-  LAMBDA_LAYER_ARNS         = module.LAMBDA_LAYER.lambda_layer_arns
-  MARKETING_VPC_ID          = var.MARKETING_VPC_ID
-  MARKETING_PRIVATE_SUBNETS = var.MARKETING_PRIVATE_SUBNETS
-  ENV                       = var.ENV
-  FEATURE_NAME              = var.FEATURE_NAME
-  IAM_ROLES                 = local.iam_roles
-  TAGS                      = local.tags
+  source            = "../../modules/application/lambda"
+  LAMBDA_FUNCTIONS  = var.LAMBDA_FUNCTIONS
+  LAMBDA_LAYER_ARNS = module.LAMBDA_LAYER.lambda_layer_arns
+  VPC_ID            = var.BASE_BACKEND_VPC_ID
+  SUBNETS           = var.BASE_BACKEND_PUBLIC_SUBNETS
+  ENV               = var.ENV
+  FEATURE_NAME      = var.FEATURE_NAME
+  IAM_ROLES         = local.iam_roles
+  TAGS              = local.tags
 
 }
 
@@ -66,8 +70,9 @@ module "LAMBDA_CRON" {
 
 
 module "ECS" {
-  source       = "../../modules/application/ecs"
-  FEATURE_NAME = var.FEATURE_NAME
-  ENV          = var.ENV
-  TAGS         = local.tags
+  source        = "../../modules/application/ecs"
+  FEATURE_NAME  = var.FEATURE_NAME
+  ENV           = var.ENV
+  ECS_TASK_ROLE = local.iam_roles.provision_tenant_infra_ecs_task_role
+  TAGS          = local.tags
 }

@@ -1,6 +1,6 @@
-variable "MARKETING_PRIVATE_SUBNETS" {}
+variable "SUBNETS" {}
 
-variable "MARKETING_VPC_ID" {}
+variable "VPC_ID" {}
 variable "LAMBDA_LAYER_ARNS" {}
 variable "LAMBDA_FUNCTIONS" {}
 variable "ENV" {}
@@ -22,7 +22,7 @@ locals {
 resource "aws_security_group" "lambda_sg" {
   name_prefix = "lambda_sg"
   description = "Allow all outbound traffic"
-  vpc_id      = var.MARKETING_VPC_ID
+  vpc_id      = var.VPC_ID
 
   egress {
     from_port        = 0
@@ -65,7 +65,7 @@ resource "aws_lambda_function" "lambda" {
   ]
   vpc_config {
     # Every subnet should be able to reach an EFS mount target in the same Availability Zone. Cross-AZ mounts are not permitted.
-    subnet_ids         = var.MARKETING_PRIVATE_SUBNETS
+    subnet_ids         = var.SUBNETS
     security_group_ids = [aws_security_group.lambda_sg.id]
   }
   layers = [
