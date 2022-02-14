@@ -1,24 +1,57 @@
 #!/bin/bash
-
-if [ -z ${FUNCTION_DIR} ]; then
-  echo "Missing FUNCTION_DIR" >&2
-  exit 1
-fi
-if [ -z ${FUNCTION_HANDLER} ]; then
-  echo "Missing FUNCTION_HANDLER" >&2
-  exit 1
-fi
-
 CUR_DIR=$(pwd)
 
-eval "HANDLER=($(echo ${FUNCTION_HANDLER} | tr "." "\n"))"
+TENANT_NAME='hello'
+TENANT_DOMAIN_RECORD_VALUE="10.10.10.10"
+TF_BUCKET='terraform-state20220108143755951900000001'
+TF_BUCKET_KEY='base/backend/tenant_provision/dev/'${TENANT_NAME}'/terraform.tfstate'
 
-# Create index.js
-cat << EOF > ${FUNCTION_DIR}/index.js
-const app = require("./${HANDLER[0]}")
-app.${HANDLER[1]}()
-EOF
+tenant_provision() {
+  TF_PREFIX_COMMAND='terraform -chdir="infrastructures" '
+  TF_INIT_COMMAND=${TF_PREFIX_COMMAND}'init -backend-config "bucket='${TF_BUCKET}'" -backend-config "key='${TF_BUCKET_KEY}'" -reconfigure'
+  TF_VALIDATE_COMMAND=${TF_PREFIX_COMMAND}'validate'
+  TF_PLAN_COMMAND=${TF_PREFIX_COMMAND}'plan -var="TENANT_NAME='${TENANT_NAME}'" -var="TENANT_DOMAIN_RECORD_VALUE='${TENANT_DOMAIN_RECORD_VALUE}'"'
+  TF_APPLY_COMMAND=${TF_PREFIX_COMMAND}'apply --auto-approve -var="TENANT_NAME='${TENANT_NAME}'" -var="TENANT_DOMAIN_RECORD_VALUE='${TENANT_DOMAIN_RECORD_VALUE}'"'
 
-# Execute js
-node ${FUNCTION_DIR}/index.js
-# ts-node index.ts
+  echo ">>>>>>>>> Running command: ${TF_INIT_COMMAND}"
+  if eval "${TF_INIT_COMMAND}"; then
+    echo ">>>>>>>>> Command run success"
+  else
+    echo ">>>>>>>>> Command run failure"
+    return 1
+  fi
+
+  echo ">>>>>>>>> Running command: ${TF_VALIDATE_COMMAND}"
+  if eval "${TF_VALIDATE_COMMAND}"; then
+    echo ">>>>>>>>> Command run success"
+  else
+    echo ">>>>>>>>> Command run failure"
+    return 1
+  fi
+
+  echo ">>>>>>>>> Running command: ${TF_PLAN_COMMAND}"
+  if eval "${TF_PLAN_COMMAND}"; then
+    echo ">>>>>>>>> Command run success"
+  else
+    echo ">>>>>>>>> Command run failure"
+    return 1
+  fi
+
+  echo ">>>>>>>>> Running command: ${TF_APPLY_COMMAND}"
+  if eval "${TF_APPLY_COMMAND}"; then
+    echo ">>>>>>>>> Command run success"
+  else
+    echo ">>>>>>>>> Command run failure"
+    return 1
+  fi
+
+  echo "Tenant provision finished"
+  return 0
+}
+
+tenant_provision
+if [ $? -ne 0 ]; then
+  echo "Tenant provision failure"
+fi
+
+echo "[TBD] Tenant provision finished, go to invoke post provision lambda"
