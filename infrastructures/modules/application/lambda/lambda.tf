@@ -6,6 +6,7 @@ variable "LAMBDA_FUNCTIONS" {}
 variable "ENV" {}
 variable "FEATURE_NAME" {}
 variable "IAM_ROLES" {}
+variable "ENV_VARS" {}
 variable "TAGS" {}
 locals {
   lambda_default_config = {
@@ -72,7 +73,7 @@ resource "aws_lambda_function" "lambda" {
     for layer in each.value.layers : var.LAMBDA_LAYER_ARNS[layer]
   ]
   environment {
-    variables = try(each.value.env_vars, null)
+    variables = var.ENV_VARS[try(each.value.env_vars, null)]
   }
 
   tags = var.TAGS
