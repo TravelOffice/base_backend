@@ -12,15 +12,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.post('/ecs/tasks', async (req: Request, res: Response) => {
-  // const env = await getEnv('NODE_ENV');
+  const env = await getEnv('ENV');
   const cluster = await getEnv('ECS_CLUSTER_NAME');
   const launchType = await getEnv('ECS_LAUNCH_TYPE');
   const subnet = await getEnv('ECS_SUBNET') || '';
-  const taskDefinition = await getEnv('ECS_TASK_DEFINITION') || '';
+  const taskDefinitionArn = await getEnv('ECS_TASK_DEFINITION_ARN') || '';
+  const taskDefinitionName = await getEnv('ECS_TASK_DEFINITION_NAME');
+  const tenantName = 'tenant_name';
+  const tenantDomainRecord = env + '.d1lwjda5hcw2sf.amplifyapp.com';
   const ecs = new AWS.ECS();
   const params : AWS.ECS.Types.RunTaskRequest = {
       cluster: cluster, 
-      taskDefinition: taskDefinition,
+      taskDefinition: taskDefinitionArn,
       launchType:launchType,
       count: 1,
       platformVersion:'LATEST',
@@ -32,22 +35,23 @@ app.post('/ecs/tasks', async (req: Request, res: Response) => {
       },
       overrides: {
         containerOverrides: [{
+          name: taskDefinitionName,
           environment: [
             {
               name: 'TENANT_NAME',
-              value: 'hello'
+              value: tenantName
             },
             {
               name: 'TENANT_DOMAIN_RECORD_VALUE',
-              value: 'amplify'
+              value: tenantDomainRecord
             },
             {
               name: 'TF_BUCKET',
-              value: ''
+              value: 'terraform-state20220108143755951900000001'
             },
             {
               name: 'TF_BUCKET_KEY',
-              value: 'base/backend/tenant_provision/dev/hello/terraform.tfstate'
+              value: 'base/backend/tenant_provision/' + env + '/' + tenantName + '/terraform.tfstate'
             }
           ]
         }]
