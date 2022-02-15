@@ -18,10 +18,12 @@ locals {
   }
   env_vars = {
     ecs_task_vars = {
-      ECS_CLUSTER_NAME    = module.ECS.name
-      ECS_LAUNCH_TYPE     = "FARGATE"
-      ECS_SUBNET          = var.BASE_BACKEND_PUBLIC_SUBNETS[0]
-      ECS_TASK_DEFINITION = module.ECS.task_definition
+      ENV                      = var.ENV
+      ECS_CLUSTER_NAME         = module.ECS.name
+      ECS_LAUNCH_TYPE          = "FARGATE"
+      ECS_SUBNET               = var.BASE_BACKEND_PUBLIC_SUBNETS[0]
+      ECS_TASK_DEFINITION_ARN  = module.ECS.task_definition_arn
+      ECS_TASK_DEFINITION_NAME = module.ECS.task_definition_name
     }
   }
 

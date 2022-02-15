@@ -58,6 +58,10 @@ output "name" {
   value = module.ECS_CLUSTER.ecs_cluster_name
 }
 
-output "task_definition" {
+output "task_definition_arn" {
   value = module.ECS_TASK_DEFINITION.task_arn
+}
+
+output "task_definition_name" {
+  value = "${var.ENV}-${var.FEATURE_NAME}"
 }
