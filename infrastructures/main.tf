@@ -86,3 +86,21 @@ module "ECS" {
   ECS_TASK_ROLE = local.iam_roles.provision_tenant_infra_ecs_task_role
   TAGS          = local.tags
 }
+
+module "ecs_vpc_endpoint" {
+  source       = "../../modules/network/vpc/endpoint"
+  SERVICE_NAME = "com.amazonaws.${var.AWS_REGION}.ecs"
+  FEATURE_NAME = var.FEATURE_NAME
+  ENV          = var.ENV
+  VPC_ID       = var.BASE_BACKEND_VPC_ID
+  TAGS         = local.tags
+}
+
+module "secret_manager_vpc_endpoint" {
+  source       = "../../modules/network/vpc/endpoint"
+  SERVICE_NAME = "com.amazonaws.${var.AWS_REGION}.secretsmanager"
+  FEATURE_NAME = var.FEATURE_NAME
+  ENV          = var.ENV
+  VPC_ID       = var.BASE_BACKEND_VPC_ID
+  TAGS         = local.tags
+}
