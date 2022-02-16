@@ -1,10 +1,20 @@
 #!/bin/bash
-CUR_DIR=$(pwd)
-
-TENANT_NAME='hello'
-TENANT_DOMAIN_RECORD_VALUE="10.10.10.10"
-TF_BUCKET='terraform-state20220108143755951900000001'
-TF_BUCKET_KEY='base/backend/tenant_provision/dev/'${TENANT_NAME}'/terraform.tfstate'
+if [ -z ${TENANT_NAME} ]; then
+  echo "Missing TENANT_NAME" >&2
+  exit 1
+fi
+if [ -z ${TENANT_DOMAIN_RECORD_VALUE} ]; then
+  echo "Missing TENANT_DOMAIN_RECORD_VALUE" >&2
+  exit 1
+fi
+if [ -z ${TF_BUCKET} ]; then
+  echo "Missing TF_BUCKET" >&2
+  exit 1
+fi
+if [ -z ${TF_BUCKET_KEY} ]; then
+  echo "Missing TF_BUCKET_KEY" >&2
+  exit 1
+fi
 
 tenant_provision() {
   TF_PREFIX_COMMAND='terraform -chdir="infrastructures" '
