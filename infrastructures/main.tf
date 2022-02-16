@@ -93,6 +93,7 @@ module "ecs_vpc_endpoint" {
   FEATURE_NAME = var.FEATURE_NAME
   ENV          = var.ENV
   VPC_ID       = var.BASE_BACKEND_VPC_ID
+  SUBNET_IDS   = var.BASE_BACKEND_PUBLIC_SUBNETS
   TAGS         = local.tags
 }
 
@@ -102,5 +103,7 @@ module "secret_manager_vpc_endpoint" {
   FEATURE_NAME = var.FEATURE_NAME
   ENV          = var.ENV
   VPC_ID       = var.BASE_BACKEND_VPC_ID
-  TAGS         = local.tags
+  SUBNET_IDS   = var.BASE_BACKEND_PUBLIC_SUBNETS
+
+  TAGS = local.tags
 }

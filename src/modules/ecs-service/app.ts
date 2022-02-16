@@ -30,7 +30,7 @@ app.post('/ecs/tasks', async (req: Request, res: Response) => {
       networkConfiguration: {
           awsvpcConfiguration: {
             subnets: [subnet],
-            assignPublicIp: 'DISABLED'
+            assignPublicIp: 'ENABLED'
           }
       },
       overrides: {
