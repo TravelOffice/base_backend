@@ -21,7 +21,7 @@ phases:
   build:
     commands:
       - ./scripts/build_serverless.sh dev
-      - ./scripts/execute_terraform.sh $BUILD_ENV plan -var-file="base_infra_output.tfvars"
+      - ./scripts/execute_terraform.sh $BUILD_ENV plan -var="TF_BUCKET=$TF_BUCKET" -var="ENV=$BUILD_ENV"
 
 artifacts:
   files:

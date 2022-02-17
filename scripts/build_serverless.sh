@@ -34,6 +34,7 @@ build_service() {
   fi
   rm -rf ${SERVICE_DIR}/dist
   rm -rf ${SERVICE_DIR}/node_modules
+  rm -rf ${SERVICE_DIR}/package-lock.json
   npm install
   npm run build
 

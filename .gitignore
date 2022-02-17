@@ -19,6 +19,7 @@ infrastructures/environments/**/serverless.auto.tfvars
 
 # node mddule
 **/node_modules/*
+**/node_modules
 
 # vscode config file
 .vscode

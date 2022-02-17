@@ -17,4 +17,4 @@ phases:
       - ./scripts/execute_terraform.sh $BUILD_ENV init -backend-config "bucket=$TF_BUCKET"
   build:
     commands:
-      - ./scripts/execute_terraform.sh $BUILD_ENV apply --auto-approve -var-file="base_infra_output.tfvars"
+      - ./scripts/execute_terraform.sh $BUILD_ENV apply --auto-approve -var="TF_BUCKET=$TF_BUCKET" -var="ENV=$BUILD_ENV"
