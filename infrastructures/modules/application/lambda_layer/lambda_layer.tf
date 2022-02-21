@@ -36,8 +36,9 @@ resource "aws_lambda_layer_version" "layer" {
   # filename   = data.external.layer_zip[each.key].result.path
 
   ## TODO: Temporary disable cause by codebuild upload error
-  s3_bucket = var.S3_BUCKET
-  s3_key    = aws_s3_bucket_object.layer_object[each.key].id
+  s3_bucket        = var.S3_BUCKET
+  s3_key           = aws_s3_bucket_object.layer_object[each.key].id
+  source_code_hash = data.external.layer_zip[each.key].result.hash
 
   compatible_runtimes      = ["nodejs14.x"]
   compatible_architectures = ["arm64"]

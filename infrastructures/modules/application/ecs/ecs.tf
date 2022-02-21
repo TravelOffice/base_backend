@@ -51,6 +51,7 @@ module "ECS_TASK_DEFINITION" {
   TASK_NAME     = "${var.ENV}-${var.FEATURE_NAME}"
   TASK_ROLE_ARN = var.ECS_TASK_ROLE
   IMAGE_URI     = module.ECS_DOCKER_IMAGE.image_uri
+  ENV           = var.ENV
   TAGS          = var.TAGS
 }
 

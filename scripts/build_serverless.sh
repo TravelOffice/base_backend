@@ -36,9 +36,12 @@ build_service() {
   rm -rf ${SERVICE_DIR}/node_modules
   rm -rf ${SERVICE_DIR}/package-lock.json
   npm install
+  echo "Install successfully"
   npm run build
+  echo "Build"
 
   rm -rf ${SERVICE_DIR}/node_modules
+  rm -rf ${SERVICE_DIR}/package-lock.json
   echo "Install production dependencies"
   npm install --production
   echo "Finished installing production"
@@ -47,10 +50,8 @@ build_service() {
   cd ${LAYER_DIR}
   rm -rf *
   echo "Prepare link ${LAYER_DIR}"
-  # ls ../../../modules/${SERVICENAME}/node_modules
   ln -sf ../../../modules/${SERVICENAME}/node_modules .
   echo "Link layer successfully"
-  # ls ${LAYER_DIR}/node_modules
   cd $CUR_DIR
 }
 

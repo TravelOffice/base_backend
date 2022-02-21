@@ -1,15 +1,16 @@
 version: 0.2
 phases:
   install:
-    runtime-versions:
-      nodejs: 14
     commands:
       # install terraform binary
       - curl -s -qL -o terraform_install.zip https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip
       - unzip terraform_install.zip -d /usr/bin/
       - chmod +x /usr/bin/terraform
+      - n 14.19.0
       - npm install -g typescript
+      - npm cache clean --force
     finally:
+      - node --version
       - terraform --version
 
   pre_build:
@@ -28,6 +29,3 @@ artifacts:
     - '**/*'
   enable-symlinks: yes
 
-cache:
-  paths:
-    - '/root/.npm/**/*'

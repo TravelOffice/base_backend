@@ -3,10 +3,6 @@ if [ -z ${TENANT_NAME} ]; then
   echo "Missing TENANT_NAME" >&2
   exit 1
 fi
-if [ -z ${TENANT_DOMAIN_RECORD_VALUE} ]; then
-  echo "Missing TENANT_DOMAIN_RECORD_VALUE" >&2
-  exit 1
-fi
 if [ -z ${TF_BUCKET} ]; then
   echo "Missing TF_BUCKET" >&2
   exit 1
@@ -20,8 +16,8 @@ tenant_provision() {
   TF_PREFIX_COMMAND='terraform -chdir="infrastructures" '
   TF_INIT_COMMAND=${TF_PREFIX_COMMAND}'init -backend-config "bucket='${TF_BUCKET}'" -backend-config "key='${TF_BUCKET_KEY}'" -reconfigure'
   TF_VALIDATE_COMMAND=${TF_PREFIX_COMMAND}'validate'
-  TF_PLAN_COMMAND=${TF_PREFIX_COMMAND}'plan -var="TENANT_NAME='${TENANT_NAME}'" -var="TENANT_DOMAIN_RECORD_VALUE='${TENANT_DOMAIN_RECORD_VALUE}'"'
-  TF_APPLY_COMMAND=${TF_PREFIX_COMMAND}'apply --auto-approve -var="TENANT_NAME='${TENANT_NAME}'" -var="TENANT_DOMAIN_RECORD_VALUE='${TENANT_DOMAIN_RECORD_VALUE}'"'
+  TF_PLAN_COMMAND=${TF_PREFIX_COMMAND}'plan -var="TENANT_NAME='${TENANT_NAME}'" -var="TF_BUCKET='${TF_BUCKET}'" -var="ENV='${TF_ENV}'"'
+  TF_APPLY_COMMAND=${TF_PREFIX_COMMAND}'apply --auto-approve -var="TENANT_NAME='${TENANT_NAME}'" -var="TF_BUCKET='${TF_BUCKET}'" -var="ENV='${TF_ENV}'"'
 
   echo ">>>>>>>>> Running command: ${TF_INIT_COMMAND}"
   if eval "${TF_INIT_COMMAND}"; then

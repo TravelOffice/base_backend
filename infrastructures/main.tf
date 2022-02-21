@@ -11,6 +11,7 @@ locals {
     standard_lambda_role                 = module.REMOTE_STATE.STATE.COMMON_CONFIG.iam.roles.standard_lambda_iam_role
     execute_ecs_task_lambda_role         = module.REMOTE_STATE.STATE.COMMON_CONFIG.iam.roles.execute_ecs_task_lambda_role
     provision_tenant_infra_ecs_task_role = module.REMOTE_STATE.STATE.COMMON_CONFIG.iam.roles.provision_tenant_infa_ecs_task_role
+    cognito_power_user_lambda_role       = module.REMOTE_STATE.STATE.COMMON_CONFIG.iam.roles.cognito_power_user_lambda_role
   }
   env_vars = {
     ecs_task_vars = {
@@ -20,6 +21,8 @@ locals {
       ECS_SUBNET               = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.public_subnets[0]
       ECS_TASK_DEFINITION_ARN  = module.ECS.task_definition_arn
       ECS_TASK_DEFINITION_NAME = module.ECS.task_definition_name
+      SECRET_MANAGER_ID        = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.secret_manager.id
+
     }
     standard_vars = {
       NODE_ENV          = var.ENV

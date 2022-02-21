@@ -11,6 +11,7 @@ export default class CognitoProvider {
       UserAttributes: toUserAttributes(user),
       DesiredDeliveryMediums: ['EMAIL'],
     };
+    console.log('params', params);
     const provider = new AWS.CognitoIdentityServiceProvider({ apiVersion: '2016-04-19' });
     const data = await provider.adminCreateUser(params).promise();
     return toUser(data.User) || user;

@@ -1,6 +1,7 @@
 variable "TASK_ROLE_ARN" {}
 variable "TASK_NAME" {}
 variable "IMAGE_URI" {}
+variable "ENV" {}
 variable "FUNCTION_HANDLER" {
   default = "app.handler"
 }
@@ -34,6 +35,10 @@ resource "aws_ecs_task_definition" "task" {
         {
           name  = "FUNCTION_HANDLER"
           value = var.FUNCTION_HANDLER
+        },
+        {
+          name  = "TF_ENV"
+          value = var.ENV
         }
       ]
       "logConfiguration" : {
