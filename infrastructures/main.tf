@@ -117,3 +117,13 @@ module "secret_manager_vpc_endpoint" {
 
   TAGS = local.tags
 }
+
+module "cognito_pre_sign_up_trigger" {
+  source               = "../../modules/application/cognito_trigger"
+  COGNITO_USER_POOL_ID = module.REMOTE_STATE.STATE.COMMON_CONFIG.cognito.user_pool_id
+  LAMBDA_TRIGGERS      = var.LAMBDA_TRIGGERS
+  LAMBDA_ARNS          = module.LAMBDA_FUNCTION.lambda_arns
+  ENV                  = var.ENV
+  FEATURE_NAME         = var.FEATURE_NAME
+  AWS_REGION           = var.AWS_REGION
+}
