@@ -65,8 +65,9 @@ tenant_provision() {
   return 0
 }
 
-PAYLOAD='{"success": "true"}'
-if [ -z ${ERROR_LOG} ]; then
+PAYLOAD_FMT='{"tenantName": "'${TENANT_NAME}'", "success": "%s", "message": "%s"}'
+STS="false"
+if [[ -z ${ERROR_LOG} ]]; then
   #Allow to save error status when combine command with tee
   set -o pipefail
   tenant_provision
@@ -76,14 +77,14 @@ if [ -z ${ERROR_LOG} ]; then
     ERROR_LOG=$(sed 's/\"/ /g' <<< ${ERROR_LOG})
     ERROR_LOG=$(sed 's/\\/\\\\/g' <<< ${ERROR_LOG})
     ERROR_LOG=$(sed "s/'//g" <<< ${ERROR_LOG})
-    PAYLOAD='{"success": "false", "message": "'${ERROR_LOG}'"}'
   else
     echo "Tenant provision finished"
+    STS="true"
   fi
   set +o pipefail
-else
-  PAYLOAD='{"success": "false", "message": "' ${ERROR_LOG} '"}'
 fi
+
+PAYLOAD=`printf "${PAYLOAD_FMT}" "${STS}" "${ERROR_LOG}"`
 
 rm -rf $ERROR_FILE
 

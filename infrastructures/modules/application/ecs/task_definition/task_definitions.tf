@@ -33,10 +33,6 @@ resource "aws_ecs_task_definition" "task" {
       ]
       environment = [
         {
-          name  = "FUNCTION_HANDLER"
-          value = var.FUNCTION_HANDLER
-        },
-        {
           name  = "TF_ENV"
           value = var.ENV
         }
