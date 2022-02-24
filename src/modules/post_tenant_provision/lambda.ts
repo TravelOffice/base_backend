@@ -5,11 +5,12 @@ import * as AWS from 'aws';
 export const handler = async (event: any, context: any) => {
   console.log(event);
   const status:boolean = (event.success === 'true');
-  const notificationEmail = getEnv('NOTIFICATION_EMAIL');
-  const adminEmail:string = getEnv('ADMIN_EMAIL');
+  const awsRegion = await getEnv('AWS_REGION');
+  const notificationEmail = await getAwsSecretValue('NOTIFICATION_SENDER_EMAIL');
+  const adminEmail:string = await getAwsSecretValue('ADMIN_EMAIL');
   const tenantName:string = event.tenantName;
   const tenantEmail:string = event.tenantEmail;
-  const ses = new AWS.SES();
+  const ses = new AWS.SES({ region: awsRegion });
   interface Params {
     Destination: {
       ToAddresses: string[],
@@ -17,7 +18,10 @@ export const handler = async (event: any, context: any) => {
     },
     Message: {
       Body: {
-        Text: string,
+        Text: {
+          Charset: "UTF-8",
+          Data: string
+        },
       },
 
       Subject: { Data: string },
@@ -31,7 +35,10 @@ export const handler = async (event: any, context: any) => {
     },
     Message: {
       Body: {
-        Text: "",
+        Text: {
+          Charset: "UTF-8",
+          Data: ""
+        },
       },
       Subject: { Data: "Customer Create Notification" },
     },
@@ -43,17 +50,13 @@ export const handler = async (event: any, context: any) => {
     params.Destination.ToAddresses = [ tenantEmail ];
     params.Destination.CcAddresses = [ adminEmail ];
     params.Message.Subject.Data = "Your TravelOffice account created successfully!"
+    params.Message.Body.Text.Data = "Your TravelOffice account created successfully!"
   } else {
     // Fail: Send notification to admin
     params.Destination.ToAddresses = [ adminEmail ];
-    params.Message.Body.Text = event.message
+    params.Message.Body.Text.Data = event.message
     params.Message.Subject.Data = "Tenant [" + tenantName + "] create failed"
   }
  
-  ses.sendEmail(params).promise()
-
-  const response = {
-    statusCode: 200,
-  };
-  return response;
+  return ses.sendEmail(params).promise();
 };

@@ -25,5 +25,5 @@ resource "aws_lambda_permission" "api_gatewway_invoke_lambda_permission" {
   principal     = "cognito-idp.amazonaws.com"
 
   # More: http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-control-access-using-iam-policies-to-invoke-api.html
-  source_arn = "arn:aws:execute-api:${var.AWS_REGION}:${data.aws_caller_identity.current.account_id}:userpool/${var.COGNITO_USER_POOL_ID}"
+  source_arn = "arn:aws:cognito-idp:${var.AWS_REGION}:${data.aws_caller_identity.current.account_id}:userpool/${var.COGNITO_USER_POOL_ID}"
 }

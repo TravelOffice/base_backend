@@ -22,7 +22,7 @@ locals {
       ECS_TASK_DEFINITION_ARN  = module.ECS.task_definition_arn
       ECS_TASK_DEFINITION_NAME = module.ECS.task_definition_name
       SECRET_MANAGER_ID        = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.secret_manager.id
-
+      POST_TENANT_PROVISION_LAMBDA = "${var.ENV}-${var.FEATURE_NAME}-lambda_post_tenant_provision"
     }
     standard_vars = {
       NODE_ENV          = var.ENV
@@ -57,7 +57,7 @@ module "LAMBDA_FUNCTION" {
   LAMBDA_FUNCTIONS  = var.LAMBDA_FUNCTIONS
   LAMBDA_LAYER_ARNS = module.LAMBDA_LAYER.lambda_layer_arns
   VPC_ID            = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.id
-  SUBNETS           = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.public_subnets
+  SUBNETS           = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.private_subnets
   ENV               = var.ENV
   FEATURE_NAME      = var.FEATURE_NAME
   IAM_ROLES         = local.iam_roles
