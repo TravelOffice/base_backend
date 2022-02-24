@@ -5,8 +5,8 @@ import * as AWS from 'aws';
 export const handler = async (event: any, context: any) => {
   console.log(event);
   const status:boolean = (event.success === 'true');
-  const notificationEmail = getEnv('NOTIFICATION_EMAIL');
-  const adminEmail:string = getEnv('ADMIN_EMAIL');
+  const notificationEmail = await getAwsSecretValue('NOTIFICATION_SENDER_EMAIL');
+  const adminEmail:string = await getAwsSecretValue('ADMIN_EMAIL');
   const tenantName:string = event.tenantName;
   const tenantEmail:string = event.tenantEmail;
   const ses = new AWS.SES();

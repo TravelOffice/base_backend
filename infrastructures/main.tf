@@ -22,7 +22,7 @@ locals {
       ECS_TASK_DEFINITION_ARN  = module.ECS.task_definition_arn
       ECS_TASK_DEFINITION_NAME = module.ECS.task_definition_name
       SECRET_MANAGER_ID        = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.secret_manager.id
-
+      POST_TENANT_PROVISION_LAMBDA = module.LAMBDA_FUNCTION.lambda_arns["lambda_post_tenant_provision"]
     }
     standard_vars = {
       NODE_ENV          = var.ENV

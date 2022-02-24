@@ -11,6 +11,8 @@ export const handler = async (event: any, context: any) => {
   const taskDefinitionArn = getEnv('ECS_TASK_DEFINITION_ARN') || '';
   const taskDefinitionName = getEnv('ECS_TASK_DEFINITION_NAME');
   const tenantName = event.userName.toLowerCase();
+  const tenantEmail = event.email;
+  const postLambdaName = await getEnv('POST_TENANT_PROVISION_LAMBDA');
   const tfBucket = await getAwsSecretValue('TF_BUCKET')
   const ecs = new AWS.ECS(); 
   const params : AWS.ECS.Types.RunTaskRequest = {
@@ -34,12 +36,20 @@ export const handler = async (event: any, context: any) => {
               value: tenantName
             },
             {
+              name: 'TENANT_EMAIL',
+              value: tenantEmail
+            },
+            {
               name: 'TF_BUCKET',
               value: tfBucket
             },
             {
               name: 'TF_BUCKET_KEY',
               value: 'base/backend/tenant_provision/environments/' + env + '/' + tenantName + '/terraform.tfstate'
+            },
+            {
+              name: 'POST_LAMBDA_NAME',
+              value: postLambdaName
             }
           ]
         }]
