@@ -5,8 +5,11 @@ touch ${ERROR_FILE}
 if [[ -z ${TF_ENV} ]]; then
   ERROR_LOG="Missing TF_ENV"
 fi
-if [[ -z ${TENANT_NAME} ]]; then
+if [[ -z ${TENANT_NAME} && -z ${ERROR_LOG} ]]; then
   ERROR_LOG="Missing TENANT_NAME"
+fi
+if [[ -z ${TENANT_EMAIL} && -z ${ERROR_LOG} ]]; then
+  ERROR_LOG="Missing TENANT_EMAIL"
 fi
 if [[ -z ${TF_BUCKET} && -z ${ERROR_LOG} ]]; then
   ERROR_LOG="Missing TF_BUCKET"
@@ -65,7 +68,7 @@ tenant_provision() {
   return 0
 }
 
-PAYLOAD_FMT='{"tenantName": "'${TENANT_NAME}'", "success": "%s", "message": "%s"}'
+PAYLOAD_FMT='{"tenantName": "'${TENANT_NAME}'", {"tenantEmail": "'${TENANT_EMAIL}'", "success": "%s", "message": "%s"}'
 STS="false"
 if [[ -z ${ERROR_LOG} ]]; then
   #Allow to save error status when combine command with tee
