@@ -15,13 +15,13 @@ locals {
   }
   env_vars = {
     ecs_task_vars = {
-      NODE_ENV                 = var.ENV
-      ECS_CLUSTER_NAME         = module.ECS.name
-      ECS_LAUNCH_TYPE          = "FARGATE"
-      ECS_SUBNET               = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.public_subnets[0]
-      ECS_TASK_DEFINITION_ARN  = module.ECS.task_definition_arn
-      ECS_TASK_DEFINITION_NAME = module.ECS.task_definition_name
-      SECRET_MANAGER_ID        = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.secret_manager.id
+      NODE_ENV                     = var.ENV
+      ECS_CLUSTER_NAME             = module.ECS.name
+      ECS_LAUNCH_TYPE              = "FARGATE"
+      ECS_SUBNET                   = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.public_subnets[0]
+      ECS_TASK_DEFINITION_ARN      = module.ECS.task_definition_arn
+      ECS_TASK_DEFINITION_NAME     = module.ECS.task_definition_name
+      SECRET_MANAGER_ID            = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.secret_manager.id
       POST_TENANT_PROVISION_LAMBDA = "${var.ENV}-${var.FEATURE_NAME}-lambda_post_tenant_provision"
     }
     standard_vars = {
@@ -95,27 +95,6 @@ module "ECS" {
   ENV           = var.ENV
   ECS_TASK_ROLE = local.iam_roles.provision_tenant_infra_ecs_task_role
   TAGS          = local.tags
-}
-
-module "ecs_vpc_endpoint" {
-  source       = "../../modules/network/vpc/endpoint"
-  SERVICE_NAME = "com.amazonaws.${var.AWS_REGION}.ecs"
-  FEATURE_NAME = var.FEATURE_NAME
-  ENV          = var.ENV
-  VPC_ID       = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.id
-  SUBNET_IDS   = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.public_subnets
-  TAGS         = local.tags
-}
-
-module "secret_manager_vpc_endpoint" {
-  source       = "../../modules/network/vpc/endpoint"
-  SERVICE_NAME = "com.amazonaws.${var.AWS_REGION}.secretsmanager"
-  FEATURE_NAME = var.FEATURE_NAME
-  ENV          = var.ENV
-  VPC_ID       = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.id
-  SUBNET_IDS   = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.public_subnets
-
-  TAGS = local.tags
 }
 
 module "cognito_pre_sign_up_trigger" {
