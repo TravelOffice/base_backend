@@ -45,7 +45,7 @@ module "REMOTE_STATE" {
   REMOTE_AWS_REGION   = var.AWS_REGION
 }
 module "LAMBDA_LAYER" {
-  source        = "../../modules/application/lambda_layer"
+  source        = "TravelOffice/lambda-layer/aws"
   LAMBDA_LAYERS = var.LAMBDA_LAYERS
   ENV           = var.ENV
   FEATURE_NAME  = var.FEATURE_NAME
@@ -53,7 +53,7 @@ module "LAMBDA_LAYER" {
 }
 
 module "LAMBDA_FUNCTION" {
-  source            = "../../modules/application/lambda"
+  source            = "TravelOffice/lambda/aws"
   LAMBDA_FUNCTIONS  = var.LAMBDA_FUNCTIONS
   LAMBDA_LAYER_ARNS = module.LAMBDA_LAYER.lambda_layer_arns
   VPC_ID            = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.id
@@ -66,7 +66,7 @@ module "LAMBDA_FUNCTION" {
 }
 
 module "API_GATEWAY" {
-  source                 = "../../modules/application/apigateway"
+  source                 = "TravelOffice/apigateway/aws"
   LAMBDA_ARNS            = module.LAMBDA_FUNCTION.lambda_arns
   API_ENDPOINTS          = var.API_ENDPOINTS
   AWS_REGION             = var.AWS_REGION

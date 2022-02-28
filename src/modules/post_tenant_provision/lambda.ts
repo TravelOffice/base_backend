@@ -6,10 +6,10 @@ export const handler = async (event: any, context: any) => {
   console.log(event);
   const status:boolean = (event.success === 'true');
   const awsRegion = await getEnv('AWS_REGION');
-  const notificationEmail = await getAwsSecretValue('NOTIFICATION_SENDER_EMAIL');
-  const adminEmail:string = await getAwsSecretValue('ADMIN_EMAIL');
-  const tenantName:string = event.tenantName;
-  const tenantEmail:string = event.tenantEmail;
+  const notificationEmail = (await getAwsSecretValue('NOTIFICATION_SENDER_EMAIL'))!;
+  const adminEmail = (await getAwsSecretValue('ADMIN_EMAIL'))!;
+  const tenantName = event.tenantName!;
+  const tenantEmail = event.tenantEmail!;
   const ses = new AWS.SES({ region: awsRegion });
   interface Params {
     Destination: {
