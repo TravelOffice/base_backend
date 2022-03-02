@@ -74,6 +74,7 @@ module "API_GATEWAY" {
   DOMAIN_NAME            = module.REMOTE_STATE.STATE.COMMON_CONFIG.route53.hosted_zone.domain.name
   HOSTED_ZONE_ID         = module.REMOTE_STATE.STATE.COMMON_CONFIG.route53.hosted_zone.id
   DOMAIN_CERTIFICATE_ARN = module.REMOTE_STATE.STATE.COMMON_CONFIG.route53.hosted_zone.domain.certificate.arn
+  COGNITO_USER_POOL_ARN  = module.REMOTE_STATE.STATE.COMMON_CONFIG.cognito.user_pool.arn
   ENV                    = var.ENV
   TAGS                   = local.tags
 
@@ -99,7 +100,7 @@ module "ECS" {
 
 module "cognito_pre_sign_up_trigger" {
   source               = "../../modules/application/cognito_trigger"
-  COGNITO_USER_POOL_ID = module.REMOTE_STATE.STATE.COMMON_CONFIG.cognito.user_pool_id
+  COGNITO_USER_POOL_ID = module.REMOTE_STATE.STATE.COMMON_CONFIG.cognito.user_pool.id
   LAMBDA_TRIGGERS      = var.LAMBDA_TRIGGERS
   LAMBDA_ARNS          = module.LAMBDA_FUNCTION.lambda_arns
   ENV                  = var.ENV
