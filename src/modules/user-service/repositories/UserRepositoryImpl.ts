@@ -24,6 +24,8 @@ export default class UserRepositoryImpl implements UserRepository {
     throw new Error('Method not implemented!');
   };
 
+  listUsers = async (filterKey: string, filterValue: string, limit: number = 1, paginationToken: string = '') => cognitoProvider.listUsers(filterKey, filterValue, limit, paginationToken);
+
   saveToDynamo = async (user: User) => {
     await dynamoProvider.putItem('Users', user);
   };
