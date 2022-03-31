@@ -15,9 +15,8 @@ export function isDevEnv() {
   return env === 'dev';
 }
 
-export async function getAwsSecretValue(key: string) : Promise<string | undefined> {
-  console.info("Get AWS Secret Value");
-  console.info("Version 14");
+export async function getAwsSecretValue(key: string) : Promise<string> {
+  console.info('[getAwsSecretValue] Get AWS Secret Value');
   if (isAwsEnv()) {
     if (secretValues) {
       return secretValues[key];
@@ -29,11 +28,12 @@ export async function getAwsSecretValue(key: string) : Promise<string | undefine
         return secretValues[key];
       }  
     }
+    return '';
   } else {
-    return process.env[key];
+    return process.env[key] || '';
   }
 }
 
-export function getEnv(key: string) : string | undefined {
-  return process.env[key];
+export function getEnv(key: string) : string {
+  return process.env[key] || '';
 }
