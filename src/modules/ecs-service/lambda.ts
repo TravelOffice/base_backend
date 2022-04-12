@@ -12,12 +12,12 @@ const postLambdaName = getEnv('POST_TENANT_PROVISION_LAMBDA');
 // eslint-disable-next-line import/prefer-default-export
 export const handler = async (event: any, context: any) => {
   console.info(`[handler] Received event ${event}`);
-  const tenantRole = event.request.userAttributes.role;
+  const tenantRole = event.request.userAttributes['custom:role'];
   if (tenantRole !== 'ADMIN') return event; // Stop if user is not admin who represent an enterprise
 
   // Start provisioning process
-  const tenantSub = event.sub;
   const tenantName = event.userName.toLowerCase();
+  const tenantSub = event.request.userAttributes.sub;
   const tenantPhone = event.request.userAttributes.phone_number;
   const tenantEmail = event.request.userAttributes.email;
   const tfBucket = await getAwsSecretValue('TF_BUCKET')
