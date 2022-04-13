@@ -20,9 +20,6 @@ fi
 if [[ -z ${POST_LAMBDA_NAME} && -z ${ERROR_LOG} ]]; then
   ERROR_LOG="Missing POST_LAMBDA_NAME"
 fi
-if [[ -z ${TENANT_SUB} && -z ${ERROR_LOG} ]]; then
-  ERROR_LOG="Missing TENANT_SUB"
-fi
 if [[ -z ${TENANT_PHONE} && -z ${ERROR_LOG} ]]; then
   ERROR_LOG="Missing TENANT_PHONE"
 fi
@@ -74,7 +71,7 @@ tenant_provision() {
   return 0
 }
 
-PAYLOAD_FMT='{"tenantName": "'${TENANT_NAME}'", "tenantEmail": "'${TENANT_EMAIL}'", "tenantSub": "'${TENANT_SUB}'", "tenantPhone": "'${TENANT_PHONE}'", "result": "%s", "message": "%s"}'
+PAYLOAD_FMT='{"tenantName": "'${TENANT_NAME}'", "tenantEmail": "'${TENANT_EMAIL}'", "tenantPhone": "'${TENANT_PHONE}'", "result": "%s", "message": "%s"}'
 STS="FAIL"
 if [[ -z ${ERROR_LOG} ]]; then
   #Allow to save error status when combine command with tee

@@ -17,7 +17,6 @@ export const handler = async (event: any, context: any) => {
 
   // Start provisioning process
   const tenantName = event.userName.toLowerCase();
-  const tenantSub = event.request.userAttributes.sub;
   const tenantPhone = event.request.userAttributes.phone_number;
   const tenantEmail = event.request.userAttributes.email;
   const tfBucket = await getAwsSecretValue('TF_BUCKET')
@@ -45,10 +44,6 @@ export const handler = async (event: any, context: any) => {
           {
             name: 'TENANT_EMAIL',
             value: tenantEmail
-          },
-          {
-            name: 'TENANT_SUB',
-            value: tenantSub
           },
           {
             name: 'TENANT_PHONE',
