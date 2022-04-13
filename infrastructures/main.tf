@@ -12,6 +12,7 @@ locals {
     execute_ecs_task_lambda_role         = module.REMOTE_STATE.STATE.COMMON_CONFIG.iam.roles.execute_ecs_task_lambda_role
     provision_tenant_infra_ecs_task_role = module.REMOTE_STATE.STATE.COMMON_CONFIG.iam.roles.provision_tenant_infa_ecs_task_role
     cognito_power_user_lambda_role       = module.REMOTE_STATE.STATE.COMMON_CONFIG.iam.roles.cognito_power_user_lambda_role
+    read_write_dynamodb_lambda_role      = module.REMOTE_STATE.STATE.COMMON_CONFIG.iam.roles.read_write_dynamodb_lambda_role
   }
   env_vars = {
     ecs_task_vars = {
