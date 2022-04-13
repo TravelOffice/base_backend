@@ -74,7 +74,7 @@ tenant_provision() {
   return 0
 }
 
-PAYLOAD_FMT='{"tenantName": "'${TENANT_NAME}'", "tenantEmail": "'${TENANT_EMAIL}'", "tenantSub": "'${TENANT_SUB}'", "tenantPhone": "'${TENANT_PHONE}'", "success": "%s", "message": "%s"}'
+PAYLOAD_FMT='{"tenantName": "'${TENANT_NAME}'", "tenantEmail": "'${TENANT_EMAIL}'", "tenantSub": "'${TENANT_SUB}'", "tenantPhone": "'${TENANT_PHONE}'", "result": "%s", "message": "%s"}'
 STS="FAIL"
 if [[ -z ${ERROR_LOG} ]]; then
   #Allow to save error status when combine command with tee
