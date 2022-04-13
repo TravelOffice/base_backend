@@ -24,7 +24,6 @@ interface PostTenantProvisionEvent {
   result: 'SUCCESS' | 'FAIL',
   tenantName: string,
   tenantEmail: string,
-  tenantSub: string,
   tenantPhone: string,
   message: string
 }
@@ -54,7 +53,6 @@ const initializeTenantData = async (event: PostTenantProvisionEvent) => {
   const ddbTable = await getAwsSecretValue('DYNAMO_TRAVEL_TABLE');
   dynamoProvider.putItem(ddbTable, `Tenant#${event.tenantName}`, `Tenant#${event.tenantName}`, {
     email: event.tenantEmail,
-    sub: event.tenantSub,
     phone: event.tenantPhone
   });
 };
