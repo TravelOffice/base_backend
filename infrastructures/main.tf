@@ -8,11 +8,7 @@ variable "ENV" {}
 locals {
   remote_feature_name = "base_infrastructure"
   iam_roles = {
-    standard_lambda_role                 = module.REMOTE_STATE.STATE.COMMON_CONFIG.iam.roles.standard_lambda_role
-    execute_ecs_task_lambda_role         = module.REMOTE_STATE.STATE.COMMON_CONFIG.iam.roles.execute_ecs_task_lambda_role
     provision_tenant_infra_ecs_task_role = module.REMOTE_STATE.STATE.COMMON_CONFIG.iam.roles.provision_tenant_infa_ecs_task_role
-    cognito_power_user_lambda_role       = module.REMOTE_STATE.STATE.COMMON_CONFIG.iam.roles.cognito_power_user_lambda_role
-    read_write_dynamodb_lambda_role      = module.REMOTE_STATE.STATE.COMMON_CONFIG.iam.roles.read_write_dynamodb_lambda_role
   }
   env_vars = {
     ecs_task_vars = {
@@ -61,7 +57,6 @@ module "LAMBDA_FUNCTION" {
   SUBNETS           = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.private_subnets
   ENV               = var.ENV
   FEATURE_NAME      = var.FEATURE_NAME
-  IAM_ROLES         = local.iam_roles
   ENV_VARS          = local.env_vars
   TAGS              = local.tags
 }
