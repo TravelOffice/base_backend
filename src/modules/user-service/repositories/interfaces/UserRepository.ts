@@ -6,6 +6,11 @@ export interface UserRepository {
   get: (id: string | number) => Promise<User>
   update: (id: string | number, user: User) => Promise<User>
   delete: (id: string | number) => Promise<void>
-  listUsers: (filterKey: string, filterValue: string, limit?: number, paginationToken?: string) => Promise<Array<any>>
+  listUsers: (
+    filterKey: string,
+    filterValue: string,
+    limit?: number,
+    paginationToken?: string,
+  ) => Promise<Array<any>>
   saveToDynamo: (user: User) => Promise<void>
 }

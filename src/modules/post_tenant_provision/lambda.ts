@@ -10,7 +10,7 @@ interface SESParams {
   Message: {
     Body: {
       Text: {
-        Charset: "UTF-8",
+        Charset: 'UTF-8',
         Data: string
       },
     },
@@ -31,29 +31,11 @@ interface PostTenantProvisionEvent {
 const awsRegion = getEnv('AWS_REGION');
 const ses = new AWS.SES({ region: awsRegion });
 
-// eslint-disable-next-line import/prefer-default-export
-export const handler = async (event: PostTenantProvisionEvent) => {
-  console.info(`[handler] Receive event ${event}`);
-  let tenantDataInitialErrorMessage;
-  try {
-    if (event.result === 'SUCCESS') {
-      // Add tenant information to DynamoDB
-      await initializeTenantData(event);
-    }
-  } catch (error: any) {
-    console.info(`[handler] Generated an error ${error}`);
-    tenantDataInitialErrorMessage = error.message;
-  } finally {
-    // Send notification
-    await notifyTenant(event, tenantDataInitialErrorMessage);
-  }
-};
-
 const initializeTenantData = async (event: PostTenantProvisionEvent) => {
   const ddbTable = await getAwsSecretValue('DYNAMO_TRAVEL_TABLE');
   dynamoProvider.putItem(ddbTable, `Tenant#${event.tenantName}`, `Tenant#${event.tenantName}`, {
     email: event.tenantEmail,
-    phone: event.tenantPhone
+    phone: event.tenantPhone,
   });
 };
 
@@ -63,11 +45,14 @@ const initializeTenantData = async (event: PostTenantProvisionEvent) => {
  * @param tenantDataInitialErrorMessage Error message of tenant initial process if have.
  * @returns
  */
-const notifyTenant = async (event: PostTenantProvisionEvent, tenantDataInitialErrorMessage?: string) => {
+const notifyTenant = async (
+  event: PostTenantProvisionEvent,
+  tenantDataInitialErrorMessage?: string,
+) => {
   const notificationEmail = await getAwsSecretValue('NOTIFICATION_SENDER_EMAIL');
   const adminEmail = await getAwsSecretValue('ADMIN_EMAIL');
-  const tenantName = event.tenantName;
-  const tenantEmail = event.tenantEmail;
+  const { tenantName } = event;
+  const { tenantEmail } = event;
 
   const params: SESParams = {
     Destination: {
@@ -78,7 +63,7 @@ const notifyTenant = async (event: PostTenantProvisionEvent, tenantDataInitialEr
       Body: {
         Text: {
           Charset: 'UTF-8',
-          Data: ''
+          Data: '',
         },
       },
       Subject: { Data: 'Customer Create Notification' },
@@ -97,8 +82,25 @@ const notifyTenant = async (event: PostTenantProvisionEvent, tenantDataInitialEr
     params.Destination.ToAddresses = [adminEmail];
     params.Message.Subject.Data = `Tenant [${tenantName}] create failed`;
     params.Message.Body.Text.Data = tenantDataInitialErrorMessage || event.message;
-
   }
 
   return ses.sendEmail(params).promise();
+};
+
+// eslint-disable-next-line import/prefer-default-export
+export const handler = async (event: PostTenantProvisionEvent) => {
+  console.info(`[handler] Receive event ${event}`);
+  let tenantDataInitialErrorMessage;
+  try {
+    if (event.result === 'SUCCESS') {
+      // Add tenant information to DynamoDB
+      await initializeTenantData(event);
+    }
+  } catch (error: any) {
+    console.info(`[handler] Generated an error ${error}`);
+    tenantDataInitialErrorMessage = error.message;
+  } finally {
+    // Send notification
+    await notifyTenant(event, tenantDataInitialErrorMessage);
+  }
 };

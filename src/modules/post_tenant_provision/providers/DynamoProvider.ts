@@ -2,7 +2,6 @@ import * as AWS from 'aws';
 import { getEnv } from 'get-env';
 
 type PutItemInput = AWS.DynamoDB.PutItemInput;
-type GetItemInput = AWS.DynamoDB.GetItemInput;
 
 const dynamoDB : AWS.DynamoDB = new AWS.DynamoDB({ region: getEnv('AWS_REGION') });
 

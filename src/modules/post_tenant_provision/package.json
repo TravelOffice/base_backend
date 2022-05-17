@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "npx eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "npx eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "dev": "env-cmd -f .env.development --use-shell \"ts-node app.local.ts\"",
     "build": "tsc"
   },

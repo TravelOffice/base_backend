@@ -10,7 +10,7 @@ const taskDefinitionName = getEnv('ECS_TASK_DEFINITION_NAME');
 const postLambdaName = getEnv('POST_TENANT_PROVISION_LAMBDA');
 
 // eslint-disable-next-line import/prefer-default-export
-export const handler = async (event: any, context: any) => {
+export const handler = async (event: any) => {
   console.info(`[handler] Received event ${event}`);
   const tenantRole = event.request.userAttributes['custom:role'];
   if (tenantRole !== 'ADMIN') return event; // Stop if user is not admin who represent an enterprise
@@ -19,19 +19,19 @@ export const handler = async (event: any, context: any) => {
   const tenantName = event.userName.toLowerCase();
   const tenantPhone = event.request.userAttributes.phone_number;
   const tenantEmail = event.request.userAttributes.email;
-  const tfBucket = await getAwsSecretValue('TF_BUCKET')
+  const tfBucket = await getAwsSecretValue('TF_BUCKET');
   const ecs = new AWS.ECS();
   const params: AWS.ECS.Types.RunTaskRequest = {
-    cluster: cluster,
+    cluster,
     taskDefinition: taskDefinitionArn,
-    launchType: launchType,
+    launchType,
     count: 1,
     platformVersion: 'LATEST',
     networkConfiguration: {
       awsvpcConfiguration: {
         subnets: [subnet],
-        assignPublicIp: 'ENABLED'
-      }
+        assignPublicIp: 'ENABLED',
+      },
     },
     overrides: {
       containerOverrides: [{
@@ -39,31 +39,31 @@ export const handler = async (event: any, context: any) => {
         environment: [
           {
             name: 'TENANT_NAME',
-            value: tenantName
+            value: tenantName,
           },
           {
             name: 'TENANT_EMAIL',
-            value: tenantEmail
+            value: tenantEmail,
           },
           {
             name: 'TENANT_PHONE',
-            value: tenantPhone
+            value: tenantPhone,
           },
           {
             name: 'TF_BUCKET',
-            value: tfBucket
+            value: tfBucket,
           },
           {
             name: 'TF_BUCKET_KEY',
-            value: 'base/backend/tenant_provision/environments/' + env + '/' + tenantName + '/terraform.tfstate'
+            value: `base/backend/tenant_provision/environments/${env}/${tenantName}/terraform.tfstate`,
           },
           {
             name: 'POST_LAMBDA_NAME',
-            value: postLambdaName
-          }
-        ]
-      }]
-    }
+            value: postLambdaName,
+          },
+        ],
+      }],
+    },
   };
   console.log(params);
   // Init ECS task

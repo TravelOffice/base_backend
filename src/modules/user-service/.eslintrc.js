@@ -37,5 +37,9 @@ module.exports = {
     'class-methods-use-this': 'off',
     'no-unused-vars': 'off',
     'import/prefer-default-export': 'off',
+    'linebreak-style': 'off',
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': ['error'],
+    '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true }],
   },
 };

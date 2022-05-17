@@ -1,4 +1,4 @@
-import { Sequelize, ModelCtor } from 'sequelize-typescript';
+import { Sequelize } from 'sequelize-typescript';
 
 interface Models {
   // UserModel: ModelCtor<UserModel>

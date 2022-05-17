@@ -1,0 +1,105 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ dev, master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  run-lint-check:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Install nodejs
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      # Install TypeScript
+      - name: Install TypeScript
+        run: npm install -g typescript
+
+      # Run lint check
+      - name: Run Lint
+        run: |
+          chmod +x ./scripts/*.sh
+          ./scripts/run_lint_check.sh
+
+  # Run terraform to check the change in infrastructure
+  run-infrastructure-check:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    needs: ['run-lint-check']
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Install nodejs
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      # Install TypeScript
+      - name: Install TypeScript
+        run: npm install -g typescript
+
+      # Build serverless
+      - name: Build serverless
+        run: ./scripts/build_serverless.sh ${{ secrets.BUILD_ENV }}
+
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Init
+        run: ./scripts/execute_terraform.sh ${{ secrets.BUILD_ENV }} init -backend-config "bucket=${{ secrets.TF_BUCKET }}"
+
+      # # Checks that all Terraform configuration files adhere to a canonical format
+      # - name: Terraform Format
+      #   run: ./scripts/execute_terraform.sh ${{ secrets.BUILD_ENV }} fmt -check
+
+      # Checks that all Terraform syntax
+      - name: Terraform Validate
+        run: ./scripts/execute_terraform.sh ${{ secrets.BUILD_ENV }} validate
+
+      # Generates an execution plan for Terraform
+      - name: Terraform Plan
+        run: ./scripts/execute_terraform.sh ${{ secrets.BUILD_ENV }} plan -var="TF_BUCKET=${{ secrets.TF_BUCKET }}" -var="ENV=${{ secrets.BUILD_ENV }}"

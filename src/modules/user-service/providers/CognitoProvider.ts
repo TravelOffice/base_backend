@@ -20,18 +20,18 @@ export default class CognitoProvider {
   listUsers = async (filterKey: string, filterValue: string, limit: number = 1, paginationToken: string = ''): Promise<Array<any>> => {
     let params: AWS.CognitoIdentityServiceProvider.ListUsersRequest = {
       UserPoolId: await getAwsSecretValue('COGNITO_USER_POOL_ID') || '',
-      Filter: `${filterKey} = "${filterValue}"`
+      Filter: `${filterKey} = "${filterValue}"`,
     };
     if (paginationToken !== '') {
       params = {
         UserPoolId: await getAwsSecretValue('COGNITO_USER_POOL_ID') || '',
         Filter: `${filterKey} = "${filterValue}"`,
         Limit: limit,
-        PaginationToken: paginationToken
+        PaginationToken: paginationToken,
       };
     }
     console.log('params', params);
     const data = await provider.listUsers(params).promise();
     return data.Users || [];
-  }
+  };
 }
