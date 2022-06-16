@@ -54,6 +54,7 @@ module "LAMBDA_FUNCTION" {
   LAMBDA_FUNCTIONS  = var.LAMBDA_FUNCTIONS
   LAMBDA_LAYER_ARNS = module.LAMBDA_LAYER.lambda_layer_arns
   VPC_ID            = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.id
+  LAMBDA_SG_ID      = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.security_groups.lambda_sg
   SUBNETS           = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.private_subnets
   ENV               = var.ENV
   FEATURE_NAME      = var.FEATURE_NAME
