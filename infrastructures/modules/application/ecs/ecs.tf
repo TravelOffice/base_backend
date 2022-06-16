@@ -3,14 +3,23 @@ variable "FEATURE_NAME" {}
 variable "ECS_TASK_ROLE" {}
 variable "TAGS" {}
 
+locals {
+  cluster_name = "${upper("${var.ENV}-${var.FEATURE_NAME}")}-CLUSTER"
+}
+
 module "ECS_CLUSTER" {
   source = "terraform-aws-modules/ecs/aws"
+  version = "4.0.1"
 
-  name = "${upper("${var.ENV}-${var.FEATURE_NAME}")}-CLUSTER"
+  cluster_name = local.cluster_name
 
-  container_insights = true
-
-  capacity_providers = ["FARGATE", "FARGATE_SPOT"]
+  fargate_capacity_providers = {
+    FARGATE = {
+      default_capacity_provider_strategy = {
+        weight = 100
+      }
+    }
+  }
 
   tags = var.TAGS
 }
@@ -56,7 +65,7 @@ module "ECS_TASK_DEFINITION" {
 }
 
 output "name" {
-  value = module.ECS_CLUSTER.ecs_cluster_name
+  value = local.cluster_name
 }
 
 output "task_definition_arn" {
