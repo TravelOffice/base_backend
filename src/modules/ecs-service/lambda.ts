@@ -13,7 +13,7 @@ const postLambdaName = getEnv('POST_TENANT_PROVISION_LAMBDA');
 export const handler = async (event: any, context: any) => {
   console.info(`[handler] Received event ${event}`);
   const tenantRole = event.request.userAttributes['custom:role'];
-  if (tenantRole !== 'ADMIN') return event; // Stop if user is not admin who represent an enterprise
+  if (tenantRole !== 'ROOT') return event; // Stop if user is not root who represent an enterprise
 
   // Start provisioning process
   const tenantName = event.userName.toLowerCase();
