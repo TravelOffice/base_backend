@@ -1,0 +1,111 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Provision Tenant Infrastructure",
+  "States": {
+    "Provision Tenant Infrastructure": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::ecs:runTask.waitForTaskToken",
+      "Parameters": {
+        "LaunchType.$": "$.LaunchType",
+        "Cluster.$": "$.Cluster",
+        "TaskDefinition.$": "$.TaskDefinition",
+        "PlatformVersion.$": "$.PlatformVersion",
+        "NetworkConfiguration.$": "$.NetworkConfiguration",
+        "Overrides": {
+          "ContainerOverrides": [{
+            "Name.$": "$.Overrides.ContainerOverrides.Name",
+            "Environment": [
+              {
+                "Name": "TENANT_NAME",
+                "Value.$": "$.Overrides.ContainerOverrides.Environment.TENANT_NAME"
+              },
+              {
+                "Name": "TENANT_EMAIL",
+                "Value.$": "$.Overrides.ContainerOverrides.Environment.TENANT_EMAIL"
+              },
+              {
+                "Name": "TENANT_PHONE",
+                "Value.$": "$.Overrides.ContainerOverrides.Environment.TENANT_PHONE"
+              },
+              {
+                "Name": "TF_BUCKET",
+                "Value.$": "$.Overrides.ContainerOverrides.Environment.TF_BUCKET"
+              },
+              {
+                "Name": "TF_BUCKET_KEY",
+                "Value.$": "$.Overrides.ContainerOverrides.Environment.TF_BUCKET_KEY"
+              },
+              {  
+                "Name": "TASK_TOKEN_ENV_VARIABLE",
+                "Value.$": "$$.Task.Token"
+             }
+            ]
+          }]
+        }
+      },
+      "InputPath": "$.tenantProvisionEcsTask",
+      "Next": "Provision Infrastructure Result",
+      "ResultPath": "$.tenantProvisionEcsTask"
+    },
+    "Provision Infrastructure Result": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.tenantProvisionEcsTask.result",
+          "StringMatches": "FAILED",
+          "Next": "Send Error Notification"
+        }
+      ],
+      "Default": "Intialize Tenant Information"
+    },
+    "Intialize Tenant Information": {
+      "Type": "Task",
+      "Parameters": {
+        "RequestItems.$": "$.RequestItems"
+      },
+      "InputPath": "$.initializeTenantData",
+      "ResultPath": "$.initializeTenantData",
+      "Resource": "arn:aws:states:::aws-sdk:dynamodb:batchWriteItem",
+      "Next": "Initialize Information Result"
+    },
+    "Initialize Information Result": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.initializeTenantData.UnprocessedItems[0]",
+          "IsPresent": true,
+          "Next": "Send Error Notification"
+        }
+      ],
+      "Default": "Send Success Notification"
+    },
+    "Send Error Notification": {
+      "Type": "Task",
+      "Parameters": {
+        "Destination.$": "$.Destination",
+        "Message.$": "$.Message",
+        "Source.$": "$.Source"
+      },
+      "InputPath": "$.sendFailureNotification",
+      "Resource": "arn:aws:states:::aws-sdk:ses:sendEmail",
+      "Next": "Fail"
+    },
+    "Fail": {
+      "Type": "Fail"
+    },
+    "Send Success Notification": {
+      "Type": "Task",
+      "Parameters": {
+        "Destination.$": "$.Destination",
+        "Message.$": "$.Message",
+        "Source.$": "$.Source"
+      },
+      "InputPath": "$.sendSuccessNotification",
+      "Resource": "arn:aws:states:::aws-sdk:ses:sendEmail",
+      "Next": "Success"
+    },
+    "Success": {
+      "Type": "Succeed"
+    }
+  }
+}

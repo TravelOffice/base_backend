@@ -2,6 +2,7 @@
 ERROR_LOG=""
 ERROR_FILE=error.log
 touch ${ERROR_FILE}
+
 if [[ -z ${TF_ENV} ]]; then
   ERROR_LOG="Missing TF_ENV"
 fi
@@ -17,9 +18,6 @@ fi
 if [[ -z ${TF_BUCKET_KEY} && -z ${ERROR_LOG} ]]; then
   ERROR_LOG="Missing TF_BUCKET_KEY"
 fi
-if [[ -z ${POST_LAMBDA_NAME} && -z ${ERROR_LOG} ]]; then
-  ERROR_LOG="Missing POST_LAMBDA_NAME"
-fi
 if [[ -z ${TENANT_PHONE} && -z ${ERROR_LOG} ]]; then
   ERROR_LOG="Missing TENANT_PHONE"
 fi
@@ -30,6 +28,7 @@ tenant_provision() {
   TF_VALIDATE_COMMAND=${TF_PREFIX_COMMAND}'validate'
   TF_PLAN_COMMAND=${TF_PREFIX_COMMAND}'plan -var="TENANT_NAME='${TENANT_NAME}'" -var="TF_BUCKET='${TF_BUCKET}'" -var="ENV='${TF_ENV}'"'
   TF_APPLY_COMMAND=${TF_PREFIX_COMMAND}'apply --auto-approve -var="TENANT_NAME='${TENANT_NAME}'" -var="TF_BUCKET='${TF_BUCKET}'" -var="ENV='${TF_ENV}'"'
+  STEP_FUNCTION_TASK_TOKEN=${TASK_TOKEN_ENV_VARIABLE}
 
   echo ">>>>>>>>> Running command: ${TF_INIT_COMMAND}"
   if eval "${TF_INIT_COMMAND}" 2>&1 | tee ${ERROR_FILE}; then
@@ -83,25 +82,21 @@ if [[ -z ${ERROR_LOG} ]]; then
     ERROR_LOG=$(sed 's/\"/ /g' <<< ${ERROR_LOG})
     ERROR_LOG=$(sed 's/\\/\\\\/g' <<< ${ERROR_LOG})
     ERROR_LOG=$(sed "s/'//g" <<< ${ERROR_LOG})
+    PAYLOAD=`printf "${PAYLOAD_FMT}" "${STS}" "${ERROR_LOG}"`
+    POST_INVOKE_COMMAND="aws stepfunctions send-task-failure \
+    --task-token ${STEP_FUNCTION_TASK_TOKEN} \
+    --cause '"${PAYLOAD}"'"
   else
     echo "Tenant provision finished"
     STS="SUCCESS"
+    PAYLOAD=`printf "${PAYLOAD_FMT}" "${STS}"`
+    POST_INVOKE_COMMAND="aws stepfunctions send-task-success \
+    --task-token ${STEP_FUNCTION_TASK_TOKEN} \
+    --task-output  '"${PAYLOAD}"'"
   fi
   set +o pipefail
 fi
 
-PAYLOAD=`printf "${PAYLOAD_FMT}" "${STS}" "${ERROR_LOG}"`
-
 rm -rf $ERROR_FILE
-
-echo "Invoke post provision lambda"
-POST_INVOKE_COMMAND="aws lambda invoke \
-  --function-name ${POST_LAMBDA_NAME} \
-  --cli-binary-format raw-in-base64-out \
-  --payload '"${PAYLOAD}"' \
-  response.json && \
-  cat response.json && \
-  rm -rf response.json"
-
-echo ">>>>>>>>> Running command: ${POST_INVOKE_COMMAND}"
+echo $POST_INVOKE_COMMAND
 eval "${POST_INVOKE_COMMAND}"
