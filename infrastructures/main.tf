@@ -7,12 +7,11 @@ variable "TF_BUCKET" {}
 variable "ENV" {}
 locals {
   remote_feature_name = "base_infrastructure"
-  iam_roles = {
-    provision_tenant_infra_ecs_task_role = module.REMOTE_STATE.STATE.COMMON_CONFIG.iam.roles.provision_tenant_infa_ecs_task_role
-  }
+  root_path           = format("%s/../..", path.root)
   env_vars = {
-    ecs_task_vars = {
+    lambda_ecs_service_vars = {
       NODE_ENV                     = var.ENV
+      ECS_CLUSTER_ARN              = module.ECS.arn
       ECS_CLUSTER_NAME             = module.ECS.name
       ECS_LAUNCH_TYPE              = "FARGATE"
       ECS_SUBNET                   = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.public_subnets[0]
@@ -20,6 +19,7 @@ locals {
       ECS_TASK_DEFINITION_NAME     = module.ECS.task_definition_name
       SECRET_MANAGER_ID            = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.secret_manager.id
       POST_TENANT_PROVISION_LAMBDA = "${var.ENV}-${var.FEATURE_NAME}-lambda_post_tenant_provision"
+      STATE_MACHINE_ARN            = module.tenant_provision_step_function.arn
     }
     standard_vars = {
       NODE_ENV          = var.ENV
@@ -91,7 +91,14 @@ module "ECS" {
   source        = "../../modules/application/ecs"
   FEATURE_NAME  = var.FEATURE_NAME
   ENV           = var.ENV
-  ECS_TASK_ROLE = local.iam_roles.provision_tenant_infra_ecs_task_role
+  CUSTOM_POLICIES = [
+    "EcsTaskStandardRole",
+    "Route53ChangeRecord",
+    "DynamoTableReadWrite"
+  ]
+  AWS_POLICIES = [
+    "service-role/AmazonECSTaskExecutionRolePolicy"
+  ]
   TAGS          = local.tags
 }
 
@@ -103,4 +110,20 @@ module "cognito_pre_sign_up_trigger" {
   ENV                  = var.ENV
   FEATURE_NAME         = var.FEATURE_NAME
   AWS_REGION           = var.AWS_REGION
+}
+
+module "tenant_provision_step_function" {
+  source        = "../../modules/application/step_function"
+  ENV           = var.ENV
+  NAME          = "${var.ENV}-tenant-provision"
+  ECS_ARN       = module.ECS.arn
+  ECS_TASK_ARN  = module.ECS.task_definition_arn
+  TEMPLATE_FILE = "tenant_provision.tftpl"
+  TAGS          = local.tags
+  CUSTOM_POLICIES = [
+    "StandardStepFunction",
+    "ExecuteEcsTask",
+    "DynamoTableReadWrite",
+    "SESSendMail"
+  ]
 }
