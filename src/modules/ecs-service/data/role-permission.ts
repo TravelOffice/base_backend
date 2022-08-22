@@ -1,7 +1,11 @@
-export type Permisison = {
-  name: string,
+export type Statement = {
   action?: string,
   path: string
+}
+export type Permisison = {
+  name: string,
+  title: string,
+  statements: Array<Statement>
 }
 
 export type Role = {
@@ -11,167 +15,201 @@ export type Role = {
 }
 
 export const BASE_ROLES = {
-  "roles": [
+  roles: [
     {
-      "name": "ROOT",
-      "extend": ["ADMIN"],
-      "permissions": []
+      name: 'ROOT',
+      extend: ['ADMIN'],
+      permissions: [],
     },
     {
-      "name": "ADMIN",
-      "extend": [],
-      "permissions": [
+      name: 'ADMIN',
+      extend: [],
+      permissions: [
         {
-          "name": "fb_link.create.any",
-          "action": "POST",
-          "path": "/facebook/link"
+          name: 'link_page',
+          title: 'Link page',
+          statements: [
+            {
+              path: '/facebook/link',
+              action: 'POST',
+            },
+            {
+              path: '/zalo/link',
+              action: 'POST',
+            },
+            {
+              action: 'POST',
+              path: '/telegram/link',
+            },
+          ],
         },
         {
-          "name": "fb_conversation.read.any",
-          "path": "adminAllFbConversations"
+          name: 'unlink_page',
+          title: 'Unlink page',
+          statements: [
+            {
+              path: '/admin/linked_pages',
+              action: 'DELETE',
+            },
+          ],
         },
         {
-          "name": "fb_message.read.own",
-          "path": "allFbMessages"
+          name: 'assign_chat',
+          title: 'Assign chat',
+          statements: [
+            {
+              action: 'POST',
+              path: '/admin/assign-chat',
+            },
+          ],
         },
         {
-          "name": "zalo_link.read.any",
-          "action": "GET",
-          "path": "/zalo/link"
+          name: 'view_all_conversations',
+          title: 'View all conversations',
+          statements: [
+            {
+              path: 'adminAllFbConversations',
+            },
+            {
+              path: 'adminAllZaloConversations',
+            },
+            {
+              path: 'adminAllTelegramConversations',
+            },
+            {
+              action: 'GET',
+              path: '/admin/linked_pages',
+            },
+          ],
         },
         {
-          "name": "zalo_link.create.any",
-          "action": "POST",
-          "path": "/zalo/link"
+          name: 'view_message',
+          title: 'View message',
+          statements: [
+            {
+              path: 'allFbMessages',
+            },
+            {
+              path: 'allZaloMessages',
+            },
+            {
+              path: 'allTelegramMessages',
+            },
+            {
+              path: 'getTelegramFileInfo',
+            },
+          ],
         },
         {
-          "name": "zalo_conversation.read.any",
-          "path": "adminAllZaloConversations"
+          name: 'read_user',
+          title: 'Read',
+          statements: [
+            {
+              action: 'GET',
+              path: '/users/{userId}',
+            },
+          ],
         },
         {
-          "name": "zalo_message.read.own",
-          "path": "allZaloMessages"
+          name: 'create_user',
+          title: 'Create',
+          statements: [
+            {
+              action: 'POST',
+              path: '/users',
+            },
+          ],
         },
         {
-          "name": "tele_link.create.any",
-          "action": "POST",
-          "path": "/telegram/link"
+          name: 'update_user',
+          title: 'Update',
+          statements: [
+            {
+              action: 'PUT',
+              path: '/users/{userId}',
+            },
+          ],
         },
         {
-          "name": "tele_conversation.read.any",
-          "path": "adminAllTelegramConversations"
+          name: 'delete_user',
+          title: 'Delete',
+          statements: [
+            {
+              action: 'DELETE',
+              path: '/users/{userId}',
+            },
+          ],
         },
         {
-          "name": "tele_message.read.own",
-          "path": "allTeleMessages"
+          name: 'view_all_users',
+          title: 'View all',
+          statements: [
+            {
+              action: 'GET',
+              path: '/users',
+            },
+          ],
         },
-        {
-          "name": "tele_file.read.own",
-          "path": "getTelegramFileInfo"
-        },
-        {
-          "name": "assign_chat.update.any",
-          "action": "POST",
-          "path": "/admin/assign-chat"
-        },
-        {
-          "name": "linked_pages.get.any",
-          "action": "GET",
-          "path": "/admin/linked_pages"
-        },
-        {
-          "name": "me.read.own",
-          "action": "GET",
-          "path": "/me"
-        },
-        {
-          "name": "me.update.own",
-          "action": "PUT",
-          "path": "/me"
-        },
-        {
-          "name": "user.read.any",
-          "action": "GET",
-          "path": "/users"
-        },
-        {
-          "name": "user.create.any",
-          "action": "POST",
-          "path": "/users"
-        },
-        {
-          "name": "user.delete.any",
-          "action": "DELETE",
-          "path": "/users/{userId}"
-        },
-        {
-          "name": "user.update.any",
-          "action": "PUT",
-          "path": "/users/{userId}"
-        },
-        {
-          "name": "user.read.any",
-          "action": "GET",
-          "path": "/users/{userId}"
-        },
-      ]  
+      ],
     },
     {
-      "name": "SALE",
-      "permissions": [
+      name: 'SALE',
+      permissions: [
         {
-          "name": "fb_conversation.read.own",
-          "path": "allFbConversations"
+          name: 'view_assigned_conversations',
+          title: 'View assigned conversations',
+          statements: [
+            {
+              path: 'allFbConversations',
+            },
+            {
+              path: 'allZaloConversations',
+            },
+            {
+              path: 'allTelegramConversations',
+            },
+            {
+              action: 'GET',
+              path: '/admin/linked_pages',
+            },
+          ],
         },
         {
-          "name": "fb_message.read.own",
-          "path": "allFbMessages"
+          name: 'view_message',
+          title: 'View message',
+          statements: [
+            {
+              path: 'allFbMessages',
+            },
+            {
+              path: 'allZaloMessages',
+            },
+            {
+              path: 'allTelegramMessages',
+            },
+            {
+              path: 'getTelegramFileInfo',
+            },
+          ],
         },
         {
-          "name": "zalo_conversation.read.own",
-          "path": "allZaloConversations"
+          name: 'send_message',
+          title: 'Send message',
+          statements: [
+            {
+              path: 'sendMessage',
+            },
+            {
+              path: '/presigned-url',
+              action: 'GET',
+            },
+            {
+              action: 'GET',
+              path: '/upload-file-to-chat-platform',
+            },
+          ],
         },
-        {
-          "name": "zalo_message.read.own",
-          "path": "allZaloMessages"
-        },
-        {
-          "name": "tele_conversation.read.own",
-          "path": "allTelegramMessages"
-        },
-        {
-          "name": "tele_message.read.own",
-          "path": "allTeleMessages"
-        },
-        {
-          "name": "tele_file.read.own",
-          "path": "getTelegramFileInfo"
-        },
-        {
-          "name": "message.send.own",
-          "path": "sendMessage"
-        },
-        {
-          "name": "presigned_url.create.any",
-          "action": "GET",
-          "path": "/presigned-url"
-        },
-        {
-          "name": "file_upload.create.any",
-          "action": "GET",
-          "path": "/upload-file-to-chat-platform"
-        },
-        {
-          "name": "me.read.own",
-          "action": "GET",
-          "path": "/me"
-        },
-        {
-          "name": "me.update.own",
-          "action": "PUT",
-          "path": "/me"
-        }
-      ]  
-    }
-  ]
-}
+      ],
+    },
+  ],
+};

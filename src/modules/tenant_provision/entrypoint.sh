@@ -22,6 +22,8 @@ if [[ -z ${TENANT_PHONE} && -z ${ERROR_LOG} ]]; then
   ERROR_LOG="Missing TENANT_PHONE"
 fi
 
+echo $ERROR_LOG
+
 tenant_provision() {
   TF_PREFIX_COMMAND='terraform -chdir="infrastructures" '
   TF_INIT_COMMAND=${TF_PREFIX_COMMAND}'init -backend-config "bucket='${TF_BUCKET}'" -backend-config "key='${TF_BUCKET_KEY}'" -reconfigure'
