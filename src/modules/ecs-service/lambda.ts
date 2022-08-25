@@ -17,26 +17,6 @@ const subnet = getEnv('ECS_SUBNET');
 const taskDefinitionArn = getEnv('ECS_TASK_DEFINITION_ARN');
 const taskDefinitionName = getEnv('ECS_TASK_DEFINITION_NAME');
 
-const initializeTenantRolePermission = (pk: string) => BASE_ROLES.roles.map((role: Role) => {
-  let { permissions } = role;
-  if (role.extend) {
-    const soureRole = BASE_ROLES.roles.find((x) => role.extend?.includes(x.name));
-    if (soureRole) {
-      permissions = permissions.concat(soureRole.permissions);
-      permissions = permissions.filter((item, index) => permissions.indexOf(item) === index);
-    }
-  }
-  return {
-    PutRequest: {
-      Item: AWS.DynamoDB.Converter.marshall({
-        pk,
-        sk: `${ROLE_INDEX}#${role.name}`,
-        permissions,
-      }),
-    },
-  };
-});
-
 const initializeTenantData = (
   pk: string,
   tenantName: string,
@@ -121,10 +101,8 @@ export const handler = async (event: any) => {
 
     const rolePermissionDB = await getAwsSecretValue('DYNAMO_ROLE_PERMISSION_TABLE');
     const tenantRecord = initializeTenantData(tenantPk, tenantName, tenantEmail, tenantPhone);
-    const tenantRolesRecord = initializeTenantRolePermission(tenantPk);
     const batchWriteData: { [key: string]: any } = {};
     batchWriteData[tenantDB] = tenantRecord;
-    batchWriteData[rolePermissionDB] = tenantRolesRecord;
 
     const params = {
       stateMachineArn: getEnv('STATE_MACHINE_ARN'),
