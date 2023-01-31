@@ -10,11 +10,12 @@ locals {
   root_path           = format("%s/../..", path.root)
   env_vars = {
     lambda_ecs_service_vars = {
+      REGION                       = var.AWS_REGION
       NODE_ENV                     = var.ENV
       ECS_CLUSTER_ARN              = module.ECS.arn
       ECS_CLUSTER_NAME             = module.ECS.name
       ECS_LAUNCH_TYPE              = "FARGATE"
-      ECS_SUBNET                   = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.public_subnets[0]
+      ECS_SUBNET                   = module.REMOTE_STATE.STATE.MARKETING.backend.vpc.public_subnets[0]
       ECS_TASK_DEFINITION_ARN      = module.ECS.task_definition_arn
       ECS_TASK_DEFINITION_NAME     = module.ECS.task_definition_name
       SECRET_MANAGER_ID            = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.secret_manager.id
@@ -22,6 +23,7 @@ locals {
       STATE_MACHINE_ARN            = module.tenant_provision_step_function.arn
     }
     standard_vars = {
+      REGION            = var.AWS_REGION
       NODE_ENV          = var.ENV
       SECRET_MANAGER_ID = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.secret_manager.id
     }
@@ -53,9 +55,9 @@ module "LAMBDA_FUNCTION" {
   source            = "TravelOffice/lambda/aws"
   LAMBDA_FUNCTIONS  = var.LAMBDA_FUNCTIONS
   LAMBDA_LAYER_ARNS = module.LAMBDA_LAYER.lambda_layer_arns
-  VPC_ID            = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.id
-  LAMBDA_SG_ID      = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.security_groups.lambda_sg
-  SUBNETS           = module.REMOTE_STATE.STATE.BASE_INFRASTRUCTURE.backend.vpc.private_subnets
+  VPC_ID            = module.REMOTE_STATE.STATE.MARKETING.backend.vpc.id
+  LAMBDA_SG_ID      = module.REMOTE_STATE.STATE.MARKETING.backend.vpc.security_groups.lambda_sg
+  SUBNETS           = module.REMOTE_STATE.STATE.MARKETING.backend.vpc.private_subnets
   ENV               = var.ENV
   FEATURE_NAME      = var.FEATURE_NAME
   ENV_VARS          = local.env_vars
@@ -70,7 +72,7 @@ module "API_GATEWAY" {
   FEATURE_NAME           = var.FEATURE_NAME
   DOMAIN_NAME            = module.REMOTE_STATE.STATE.COMMON_CONFIG.route53.hosted_zone.domain.name
   HOSTED_ZONE_ID         = module.REMOTE_STATE.STATE.COMMON_CONFIG.route53.hosted_zone.id
-  DOMAIN_CERTIFICATE_ARN = module.REMOTE_STATE.STATE.COMMON_CONFIG.route53.hosted_zone.domain.certificate.arn
+  DOMAIN_CERTIFICATE_ARN = module.REMOTE_STATE.STATE.COMMON_CONFIG.route53.hosted_zone.domain.certificate.api_gateway
   COGNITO_USER_POOL_ARN  = module.REMOTE_STATE.STATE.COMMON_CONFIG.cognito.user_pool.arn
   ENV                    = var.ENV
   TAGS                   = local.tags
@@ -88,9 +90,9 @@ module "LAMBDA_CRON" {
 
 
 module "ECS" {
-  source        = "../../modules/application/ecs"
-  FEATURE_NAME  = var.FEATURE_NAME
-  ENV           = var.ENV
+  source       = "../../modules/application/ecs"
+  FEATURE_NAME = var.FEATURE_NAME
+  ENV          = var.ENV
   CUSTOM_POLICIES = [
     "EcsTaskStandardRole",
     "Route53ChangeRecord",
@@ -99,7 +101,7 @@ module "ECS" {
   AWS_POLICIES = [
     "service-role/AmazonECSTaskExecutionRolePolicy"
   ]
-  TAGS          = local.tags
+  TAGS = local.tags
 }
 
 module "cognito_pre_sign_up_trigger" {
@@ -110,6 +112,9 @@ module "cognito_pre_sign_up_trigger" {
   ENV                  = var.ENV
   FEATURE_NAME         = var.FEATURE_NAME
   AWS_REGION           = var.AWS_REGION
+  depends_on = [
+    module.LAMBDA_FUNCTION
+  ]
 }
 
 module "tenant_provision_step_function" {

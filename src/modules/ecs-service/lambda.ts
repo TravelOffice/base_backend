@@ -1,8 +1,5 @@
 import * as AWS from 'aws';
 import { getAwsSecretValue, getEnv } from 'get-env';
-import {
-  BASE_ROLES, Role,
-} from './data';
 import DEFAULT_EMAIL_TEMPLATES from './data/email_templates';
 import { LANGUAGES_TYPE, ROLES_TYPE, THEMES_TYPE } from './model/User';
 import { dynamoProvider } from './providers';
@@ -96,7 +93,8 @@ export const handler = async (event: any) => {
     const tenantEmail = event.request.userAttributes.email;
     const tfBucket = await getAwsSecretValue('TF_BUCKET');
     const stepFunction = new AWS.StepFunctions({ apiVersion: '2016-11-23' });
-    const notificationEmail = `${tenantName}@traveloffice.shop`;
+    const domainName = await getAwsSecretValue('DOMAIN_NAME');
+    const notificationEmail = `${tenantName}@${domainName}`;
     const adminEmail = await getAwsSecretValue('ADMIN_EMAIL');
 
     const rolePermissionDB = await getAwsSecretValue('DYNAMO_ROLE_PERMISSION_TABLE');

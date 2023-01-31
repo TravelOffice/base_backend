@@ -28,8 +28,8 @@ tenant_provision() {
   TF_PREFIX_COMMAND='terraform -chdir="infrastructures" '
   TF_INIT_COMMAND=${TF_PREFIX_COMMAND}'init -backend-config "bucket='${TF_BUCKET}'" -backend-config "key='${TF_BUCKET_KEY}'" -reconfigure'
   TF_VALIDATE_COMMAND=${TF_PREFIX_COMMAND}'validate'
-  TF_PLAN_COMMAND=${TF_PREFIX_COMMAND}'plan -var="TENANT_NAME='${TENANT_NAME}'" -var="TF_BUCKET='${TF_BUCKET}'" -var="ENV='${TF_ENV}'"'
-  TF_APPLY_COMMAND=${TF_PREFIX_COMMAND}'apply --auto-approve -var="TENANT_NAME='${TENANT_NAME}'" -var="TF_BUCKET='${TF_BUCKET}'" -var="ENV='${TF_ENV}'"'
+  TF_PLAN_COMMAND=${TF_PREFIX_COMMAND}'plan -var="TENANT_NAME='${TENANT_NAME}'" -var="ENV='${TF_ENV}'"'
+  TF_APPLY_COMMAND=${TF_PREFIX_COMMAND}'apply --auto-approve -var="TENANT_NAME='${TENANT_NAME}'" -var="ENV='${TF_ENV}'"'
   STEP_FUNCTION_TASK_TOKEN=${TASK_TOKEN_ENV_VARIABLE}
 
   echo ">>>>>>>>> Running command: ${TF_INIT_COMMAND}"

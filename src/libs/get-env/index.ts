@@ -1,7 +1,7 @@
 import * as AWS from 'aws';
 import dotenv from 'dotenv';
 dotenv.config({ path: process.cwd() + '/.env.development' });
-const client = new AWS.SecretsManager({});
+const client = new AWS.SecretsManager();
 let secretValues: any;
 export function isAwsEnv() {
   return !!process.env.AWS_REGION;

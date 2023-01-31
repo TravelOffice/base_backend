@@ -8,6 +8,3 @@ variable "BRANCH_NAME" {
 variable "FEATURE_NAME" {
   default = "basebackend"
 }
-variable "DOMAIN_NAME" {
-  default = "traveloffice.shop"
-}
