@@ -33,9 +33,9 @@ resource "aws_ecr_repository" "repo" {
   name = "tenant_provision"
 }
 
-module "ECS_DOCKER_IMAGE" {
-  source  = "terraform-aws-modules/lambda/aws//modules/docker-build"
-  version = "2.34.0"
+module "docker-build" {
+  source  = "TravelOffice/docker-build/aws"
+  version = "0.0.2"
 
   ecr_repo                  = split("/", aws_ecr_repository.repo.repository_url)[1]
   ecr_repo_tags             = var.TAGS
@@ -84,7 +84,7 @@ module "ECS_TASK_DEFINITION" {
   source        = "./task_definition"
   TASK_NAME     = "${var.ENV}-${var.FEATURE_NAME}"
   TASK_ROLE_ARN = module.role.arn
-  IMAGE_URI     = module.ECS_DOCKER_IMAGE.image_uri
+  IMAGE_URI     = module.docker-build.image_uri
   ENV           = var.ENV
   TAGS          = var.TAGS
 }
