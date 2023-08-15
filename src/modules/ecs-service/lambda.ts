@@ -36,7 +36,7 @@ const initializeTenantData = (
       }),
     },
   };
-  const tenantAdminRecord = {
+  const tenantRootRecord = {
     PutRequest: {
       Item: AWS.DynamoDB.Converter.marshall({
         pk,
@@ -72,8 +72,39 @@ const initializeTenantData = (
     },
   };
 
-  return [tenantRecord, tenantAdminRecord, emailTemplateRecord];
+  return [tenantRecord, tenantRootRecord, emailTemplateRecord];
 };
+
+const initializeTenantMarketplaceData = (
+  tenantName: string,
+  tenantEmail: string,
+  tenantPhone: string,
+) => {
+  const currentTime = Date.now();
+  const marketplaceRootRecord = {
+    PutRequest: {
+      Item: AWS.DynamoDB.Converter.marshall({
+        pk: 'USR',
+        sk: `${tenantName}#root`,
+        tenant: tenantName,
+        username: 'root',
+        id: `${tenantName}#root`,
+        name: 'root',
+        email: tenantEmail,
+        phone: tenantPhone,
+        roles: [ROLES_TYPE.ROOT],
+        roleStr: `#${ROLES_TYPE.ROOT}#`,
+        settings: {
+          theme: THEMES_TYPE.LIGHT,
+          language: LANGUAGES_TYPE.VIETNAMESE,
+        },
+        createdAt: currentTime,
+        updatedAt: currentTime,
+      }),
+    },
+  };
+  return [marketplaceRootRecord];
+}
 
 // eslint-disable-next-line import/prefer-default-export
 export const handler = async (event: any) => {
@@ -97,10 +128,15 @@ export const handler = async (event: any) => {
     const notificationEmail = `${tenantName}@${domainName}`;
     const adminEmail = await getAwsSecretValue('ADMIN_EMAIL');
 
-    const rolePermissionDB = await getAwsSecretValue('DYNAMO_ROLE_PERMISSION_TABLE');
     const tenantRecord = initializeTenantData(tenantPk, tenantName, tenantEmail, tenantPhone);
+
+    // Retrieve data for marketplace record
+    const marketplaceDB = await getAwsSecretValue('DYNAMO_MARKETPLACE_TABLE');
+    const tenantMarketplaceRecord = initializeTenantMarketplaceData(tenantName, tenantEmail, tenantPhone);
+
     const batchWriteData: { [key: string]: any } = {};
     batchWriteData[tenantDB] = tenantRecord;
+    batchWriteData[marketplaceDB] = tenantMarketplaceRecord;
 
     const params = {
       stateMachineArn: getEnv('STATE_MACHINE_ARN'),
