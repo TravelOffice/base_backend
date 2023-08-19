@@ -86,7 +86,7 @@ const initializeTenantMarketplaceData = (
       Item: AWS.DynamoDB.Converter.marshall({
         pk: 'USR',
         sk: `${tenantName}#root`,
-        tenant: tenantName,
+        organization: tenantName,
         username: 'root',
         id: `${tenantName}#root`,
         name: 'root',
