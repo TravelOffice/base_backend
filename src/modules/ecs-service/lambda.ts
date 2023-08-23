@@ -98,6 +98,7 @@ const initializeTenantMarketplaceData = (
           theme: THEMES_TYPE.LIGHT,
           language: LANGUAGES_TYPE.VIETNAMESE,
         },
+        enabled: true,
         createdAt: currentTime,
         updatedAt: currentTime,
       }),
