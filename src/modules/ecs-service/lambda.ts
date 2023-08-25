@@ -177,11 +177,11 @@ export const handler = async (event: any) => {
           },
           Message: {
             Subject: {
-              Data: 'Customer Create Notification',
+              Data: 'Link xác thực tài khoản TravelOffice',
             },
             Body: {
               Text: {
-                Data: 'Your TravelOffice account created successfully',
+                Data: '<p>Vui lòng truy cập vào đường link này để Đăng nhập và đổi mật khẩu: https://traveloffice.vn</p><p>Cần hỗ trợ liên hệ qua e-mail: info@itab.com.vn</p>',
               },
             },
           },
