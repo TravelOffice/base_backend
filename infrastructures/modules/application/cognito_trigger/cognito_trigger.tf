@@ -5,6 +5,21 @@ variable "ENV" {}
 variable "FEATURE_NAME" {}
 variable "AWS_REGION" {}
 
+variable "ADMIN_CREATE_USER_CONFIG" {
+  type    = any
+  default = <<EOF
+'{"InviteMessageTemplate": {"EmailSubject": "Kích hoạt tài khoản thành công","EmailMessage": "<p>Chúc mừng bạn! Hệ thống đã kích hoạt thành công tài khoản TravelOffice</p><p>Username: <strong>{username}</strong></p><p>Password: <strong>{####}</strong></p>"}}'
+EOF
+}
+
+variable "EMAIL_VERIFICATION_SUBJECT" {
+  default = "Đổi\\ mật\\ khẩu\\ tài\\ khoản\\ TravelOffice"
+}
+
+variable "EMAIL_VERIFICATION_MESSAGE" {
+  default = "\\<p\\>Mã\\ xác\\ thực\\ của\\ bạn\\ là:\\ \\<strong\\>{####}\\<\\/strong\\>\\<\\/\\>"
+}
+
 data "aws_caller_identity" "current" {}
 
 resource "null_resource" "cognito_trigger_lambda" {
@@ -13,7 +28,7 @@ resource "null_resource" "cognito_trigger_lambda" {
     always_run = "${timestamp()}"
   }
   provisioner "local-exec" {
-    command = "aws cognito-idp update-user-pool --user-pool-id ${var.COGNITO_USER_POOL_ID} --lambda-config ${each.key}=${var.LAMBDA_ARNS[each.value.lambda_name]}"
+    command = "aws cognito-idp update-user-pool --user-pool-id ${var.COGNITO_USER_POOL_ID} --lambda-config ${each.key}=${var.LAMBDA_ARNS[each.value.lambda_name]} --admin-create-user-config=${chomp(replace(var.ADMIN_CREATE_USER_CONFIG, "\r\n", "\n"))} --email-verification-subject=${var.EMAIL_VERIFICATION_SUBJECT} --email-verification-message=${var.EMAIL_VERIFICATION_MESSAGE}"
   }
 }
 
