@@ -4,7 +4,7 @@ import DEFAULT_EMAIL_TEMPLATES from './data/email_templates';
 import { LANGUAGES_TYPE, ROLES_TYPE, THEMES_TYPE } from './model/User';
 import { dynamoProvider } from './providers';
 import {
-  EMPLOYEE_INDEX, ENABLED, INFORMATION_INDEX, ROLE_INDEX, TENANT_INDEX,
+  EMPLOYEE_INDEX, ENABLED, INFORMATION_INDEX, TENANT_INDEX,
 } from './utils/constants';
 
 const env = getEnv('NODE_ENV');
@@ -83,29 +83,34 @@ const initializeTenantMarketplaceData = (
   const currentTime = Date.now();
   const marketplaceRootRecord = {
     PutRequest: {
-      Item: AWS.DynamoDB.Converter.marshall({
-        pk: 'USR',
-        sk: `${tenantName}#root`,
-        organization: tenantName,
-        username: 'root',
-        id: `${tenantName}#root`,
-        name: 'root',
-        email: tenantEmail,
-        phone: tenantPhone,
-        roles: [ROLES_TYPE.ROOT],
-        roleStr: `#${ROLES_TYPE.ROOT}#`,
-        settings: {
-          theme: THEMES_TYPE.LIGHT,
-          language: LANGUAGES_TYPE.VIETNAMESE,
+      Item:
+        {
+          ...AWS.DynamoDB.Converter.marshall({
+            pk: 'USR',
+            sk: `${tenantName}#root`,
+            organization: tenantName,
+            username: 'root',
+            id: `${tenantName}#root`,
+            name: 'root',
+            email: tenantEmail,
+            phone: tenantPhone,
+            roles: [ROLES_TYPE.ROOT],
+            roleStr: `#${ROLES_TYPE.ROOT}#`,
+            settings: {
+              theme: THEMES_TYPE.LIGHT,
+              language: LANGUAGES_TYPE.VIETNAMESE,
+            },
+            createdAt: currentTime,
+            updatedAt: currentTime,
+          }),
+          enabled: {
+            Bool: true,
+          },
         },
-        enabled: true,
-        createdAt: currentTime,
-        updatedAt: currentTime,
-      }),
     },
   };
   return [marketplaceRootRecord];
-}
+};
 
 // eslint-disable-next-line import/prefer-default-export
 export const handler = async (event: any) => {
@@ -126,14 +131,18 @@ export const handler = async (event: any) => {
     const tfBucket = await getAwsSecretValue('TF_BUCKET');
     const stepFunction = new AWS.StepFunctions({ apiVersion: '2016-11-23' });
     const domainName = await getAwsSecretValue('DOMAIN_NAME');
-    const notificationEmail = `${tenantName}@${domainName}`;
+    const notificationEmail = `no-reply@${domainName}`;
     const adminEmail = await getAwsSecretValue('ADMIN_EMAIL');
 
     const tenantRecord = initializeTenantData(tenantPk, tenantName, tenantEmail, tenantPhone);
 
     // Retrieve data for marketplace record
     const marketplaceDB = await getAwsSecretValue('DYNAMO_MARKETPLACE_TABLE');
-    const tenantMarketplaceRecord = initializeTenantMarketplaceData(tenantName, tenantEmail, tenantPhone);
+    const tenantMarketplaceRecord = initializeTenantMarketplaceData(
+      tenantName,
+      tenantEmail,
+      tenantPhone,
+    );
 
     const batchWriteData: { [key: string]: any } = {};
     batchWriteData[tenantDB] = tenantRecord;
@@ -173,15 +182,16 @@ export const handler = async (event: any) => {
         sendSuccessNotification: {
           Destination: {
             ToAddresses: [tenantEmail],
-            CcAddresses: [adminEmail],
+            BccAddresses: [adminEmail],
           },
           Message: {
             Subject: {
               Data: 'Link xác thực tài khoản TravelOffice',
             },
             Body: {
-              Text: {
-                Data: '<p>Vui lòng truy cập vào đường link này để Đăng nhập và đổi mật khẩu: https://traveloffice.vn</p><p>Cần hỗ trợ liên hệ qua e-mail: info@itab.com.vn</p>',
+              Html: {
+                Charset: 'UTF-8',
+                Data: `<p>Vui lòng truy cập vào đường link này để Đăng nhập và Đổi mật khẩu: https://${tenantName}.${domainName}</p><p>Cần hỗ trợ liên hệ qua e-mail: info@itab.com.vn</p>`,
               },
             },
           },
@@ -190,7 +200,7 @@ export const handler = async (event: any) => {
         sendFailedNotification: {
           Destination: {
             ToAddresses: [tenantEmail],
-            CcAddresses: [],
+            BccAddresses: [adminEmail],
           },
           Message: {
             Subject: {
@@ -206,13 +216,11 @@ export const handler = async (event: any) => {
         },
       }),
     };
-    console.log(params);
     // Init step function
     await stepFunction.startExecution(params).promise();
 
     return event;
   } catch (error: any) {
-    console.log(error);
     throw new Error(error.messsage);
   }
 };
