@@ -116,7 +116,7 @@ const initializeTenantMarketplaceData = (
 export const handler = async (event: any) => {
   try {
     console.info(`[handler] Received event ${event}`);
-    const [tenantName] = event.userName.toLowerCase().split('#');
+    const [tenantName] = event.userName.split('#');
 
     // Check tenant information exist or not.
     const tenantDB = await getAwsSecretValue('DYNAMO_TRAVEL_TABLE');
