@@ -1,13 +1,17 @@
-data "http" "infra" {
-  url = "https://raw.githubusercontent.com/TravelOffice/infrastructure-constant/master/${var.ENV}-infrastructure.json"
+variable "ENV" {}
+data "aws_secretsmanager_secret" "secrets" {
+  arn = var.ENV == "dev" ? var.DEV_SCM_CONSTANT_ARN : var.PROD_SCM_CONSTANT_ARN
 }
 
-variable "ENV" {}
+data "aws_secretsmanager_secret_version" "current" {
+  secret_id = data.aws_secretsmanager_secret.secrets.id
+}
+
 variable "TENANT_NAME" {}
 
 locals {
   remote_feature_name = "base_infrastructure"
-  constants           = jsondecode(data.http.infra.body)
+  constants           = jsondecode(data.aws_secretsmanager_secret_version.current.secret_string)
   remote_tf_bucket    = local.constants["TF_STATE_BUCKET"]
 
 }
