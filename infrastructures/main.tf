@@ -96,7 +96,8 @@ module "ECS" {
   CUSTOM_POLICIES = [
     "EcsTaskStandardRole",
     "Route53ChangeRecord",
-    "DynamoTableReadWrite"
+    "DynamoTableReadWrite",
+    "SecretManagerRead"
   ]
   AWS_POLICIES = [
     "service-role/AmazonECSTaskExecutionRolePolicy"
